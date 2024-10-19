@@ -16,11 +16,13 @@ return new class extends Migration
             $table->string('title');
             $table->dateTime('start_date');
             $table->dateTime('end_date');
-            $table->boolean('condition_agreement'); 
+            $table->boolean('condition_agreement')->nullable();
             $table->string('full_name');
             $table->string('contact_number'); 
-            $table->string('email_address')->unique();
+            $table->string('email')->unique();
             $table->string('valid_id'); 
+            $table->softDeletes();
+            $table->tinyInteger('status')->default(1); 
             $table->timestamps();
         });
     }

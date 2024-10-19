@@ -13,16 +13,15 @@
     </div>
 </x-app-layout>
 
+@section('scripts')
 <script>
 $(document).ready(function() {
-    // CSRF token setup for AJAX requests
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
 
-    // Initial rendering of calendar with events
     function initializeCalendar(events) {
         $('#calendar').fullCalendar({
             header: {
@@ -30,175 +29,224 @@ $(document).ready(function() {
                 center: 'title',
                 right: 'month,agendaWeek,agendaDay',
             },
-            events: events, // Initial events
+            events: events,
             selectable: true,
             selectHelper: true,
             select: function(start, end) {
-                // Check if the selected start date is in the past
                 if (moment(start).isBefore(moment(), 'day')) {
-                    swal("Error!", "You cannot create events in the past!", "error");
-                    return; // Prevent the modal from opening
+                    Swal.fire("Error!", "You cannot create events in the past!", "error");
+                    return;
                 }
 
-                // Open modal if the date is valid
                 $('#bookingModal').modal('toggle');
+                clearModalFields(); // Clear fields but not error messages
+
                 $('#saveBtn').off('click').on('click', function() {
                     var title = $('#title').val();
-                    var start_date = moment(start).format('YYYY-MM-DD');
-                    var end_date = moment(end).format('YYYY-MM-DD');
+                    var full_name = $('#full_name').val();
+                    var contact_number = $('#contact_number').val();
+                    var email = $('#email').val();
+                    var valid_id = $('#dropzone-file-validId')[0].files[0];
+                    var condition_agreement = $('#condition_agreement').is(':checked') ? 1 : 0; // Send as integer
+                    var start_date = moment(start).format('YYYY-MM-DD HH:mm:ss');
+                    var end_date = moment(end).format('YYYY-MM-DD HH:mm:ss');
+
+                    // Clear previous errors
+                    clearModalErrors();
+
+                    if (condition_agreement === 0) {
+                        $('#agreementError').html('You must agree to the terms and conditions.');
+                    }
+
+                    // Validate all required fields
+                    let hasErrors = false;
+                    if (!title) {
+                        $('#titleError').html('Title is required.');
+                        hasErrors = true;
+                    }
+                    if (!full_name) {
+                        $('#fullNameError').html('Full Name is required.');
+                        hasErrors = true;
+                    }
+                    if (!contact_number) {
+                        $('#contactNumberError').html('Contact Number is required.');
+                        hasErrors = true;
+                    }
+                    if (!email) {
+                        $('#emailError').html('Email is required.');
+                        hasErrors = true;
+                    }
+                    if (!valid_id) {
+                        $('#validIdError').html('Valid ID is required.');
+                        hasErrors = true;
+                    }
+                    if (hasErrors || condition_agreement === 0) {
+                        return; // Exit if there are errors
+                    }
+
+                    var formData = new FormData();
+                    formData.append('title', title);
+                    formData.append('full_name', full_name);
+                    formData.append('contact_number', contact_number);
+                    formData.append('email', email);
+                    formData.append('valid_id', valid_id);
+                    formData.append('condition_agreement', condition_agreement);
+                    formData.append('start_date', start_date);
+                    formData.append('end_date', end_date);
 
                     $.ajax({
                         url: "{{ route('booking.store') }}",
                         type: "POST",
-                        dataType: 'json',
-                        data: {
-                            title,
-                            start_date,
-                            end_date
-                        },
+                        data: formData,
+                        processData: false,
+                        contentType: false,
                         success: function(response) {
                             $('#bookingModal').modal('hide');
                             $('#calendar').fullCalendar('renderEvent', {
                                 'id': response.id,
-                                'title': response.title,
+                                'title': `${response.title} (${response.full_name}, ${response.email})`,
                                 'start': response.start,
                                 'end': response.end,
-                                'color': response.color || '#3B82F6', // Default color if not set
+                                'color': response.color || '#3B82F6',
                             });
-                            swal("Success!", "Event created successfully!", "success");
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Event created successfully!',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                location.reload(); // Reload the page after success
+                            });
                         },
-                        error: function(error) {
-                            if (error.responseJSON.errors) {
-                                $('#titleError').html(error.responseJSON.errors.title);
+                        error: function(xhr) {
+                            const errors = xhr.responseJSON.errors || {};
+                            clearModalErrors(); // Clear previous errors
+
+                            let errorMessages = 'Email already exists.\n';
+                            for (const key in errors) {
+                                if (errors.hasOwnProperty(key)) {
+                                    errorMessages += `${errors[key].join(', ')}\n`;
+                                    $(`#${key}Error`).html(errors[key].join(', ')); // Display each field's error
+                                }
                             }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error!',
+                                text: errorMessages.trim(),
+                                confirmButtonText: 'OK'
+                            });
                         },
                     });
                 });
             },
             editable: true,
-            eventRender: function(event, element) {
-                element.css({
-                    'background-color': event.color || '#3B82F6', // Custom color
-                    'border-radius': '5px',
-                    'padding': '5px',
-                    'font-size': '12px',
-                    'color': '#ffffff', // Font color
-                });
-                element.find('.fc-title').html(event.title);
-            },
-            eventDrop: function(event) {
-                var id = event.id;
-                var start_date = moment(event.start).format('YYYY-MM-DD');
-                var end_date = moment(event.end).format('YYYY-MM-DD');
-
+            eventResize: function(event) {
                 $.ajax({
-                    url: "{{ route('booking.update', ':id') }}".replace(':id', id),
+                    url: `{{ url('booking') }}/${event.id}`,
                     type: "PATCH",
-                    dataType: 'json',
                     data: {
-                        start_date,
-                        end_date
+                        start_date: event.start.format(),
+                        end_date: event.end.format(),
                     },
                     success: function(response) {
-                        swal("Success!", "Event updated successfully!", "success");
+                        Swal.fire("Success!", "Event updated successfully!", "success").then(() => {
+                            location.reload(); // Reload the page after update
+                        });
                     },
                     error: function(error) {
-                        swal("Error!", "Failed to update event!", "error");
+                        Swal.fire("Error!", "Unable to update the event.", "error").then(() => {
+                            location.reload(); // Reload the page after error
+                        });
+                    },
+                });
+            },
+            eventDrop: function(event) {
+                $.ajax({
+                    url: `{{ url('booking') }}/${event.id}`,
+                    type: "PATCH",
+                    data: {
+                        start_date: event.start.format(),
+                        end_date: event.end.format(),
+                    },
+                    success: function(response) {
+                        Swal.fire("Success!", "Event updated successfully!", "success").then(() => {
+                            location.reload(); // Reload the page after update
+                        });
+                    },
+                    error: function(error) {
+                        Swal.fire("Error!", "Unable to update the event.", "error").then(() => {
+                            location.reload(); // Reload the page after error
+                        });
                     },
                 });
             },
             eventClick: function(event) {
-                var id = event.id;
-
-                swal({
-                    title: "Are you sure?",
-                    text: "Do you want to delete this event?",
-                    icon: "warning",
-                    buttons: {
-                        cancel: {
-                            text: "Cancel",
-                            value: null,
-                            visible: true,
-                            className: "bg-gray-300 text-gray-700 px-4 py-2 rounded",
-                        },
-                        confirm: {
-                            text: "Delete",
-                            value: true,
-                            visible: true,
-                            className: "bg-red-500 text-white px-4 py-2 rounded",
-                        },
-                    },
-                    dangerMode: true,
-                    customClass: {
-                        popup: 'swal-tailwind-popup', // Custom class for popup
-                        title: 'text-lg font-bold', // Custom class for title
-                        content: 'text-sm', // Custom class for content
-                    },
-                }).then((willDelete) => {
-                    if (willDelete) {
-                        // Perform the delete action
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel!',
+                }).then((result) => {
+                    if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('booking.destroy', ':id') }}".replace(':id', id),
+                            url: `{{ route('booking.destroy', '') }}/${event.id}`,
                             type: "DELETE",
                             success: function(response) {
-                                swal("Deleted!", "Your event has been deleted!", "success");
-                                $('#calendar').fullCalendar('removeEvents', id);
+                                // Update UI to reflect the status change
+                                $('#calendar').fullCalendar('removeEvents', event.id);
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Event deleted successfully!',
+                                    'success'
+                                ).then(() => {
+                                    location.reload(); // Reload the page after delete
+                                });
                             },
                             error: function(error) {
-                                swal("Error!", "Failed to delete event!", "error");
+                                Swal.fire(
+                                    'Error!',
+                                    'Unable to delete the event.',
+                                    'error'
+                                ).then(() => {
+                                    location.reload(); // Reload the page after error
+                                });
                             },
                         });
-                    } else {
-                        swal("Cancelled", "Your event is safe", "info");
                     }
                 });
-            },
-            eventAfterRender: function(event, element) {
-                // Set background color for dates to whitesmoke
-                $('.fc-day').css('background-color', 'whitesmoke');
-                // Make past dates dark gray
-                $('.fc-day').each(function() {
-                    var date = $(this).data('date');
-                    if (moment(date).isBefore(moment(), 'day')) {
-                        $(this).css('background-color', '#E5E7EB');
-                    }
-                });
-                // Make day labels bold
-                $('.fc-day-header').css('font-weight', 'bold');
             }
+        });
+
+        $('#bookingModal').on('hidden.bs.modal', function () {
+            clearModalFields(); // Clear fields
+            clearModalErrors(); // Clear errors
         });
     }
 
-    // Fetch initial events and initialize calendar
+    function clearModalFields() {
+        $('#title').val('');
+        $('#full_name').val('');
+        $('#contact_number').val('');
+        $('#email').val('');
+        $('#dropzone-file-validId').val(''); // Clear the file input
+        $('#condition_agreement').prop('checked', false); // Uncheck the agreement checkbox
+    }
+
+    function clearModalErrors() {
+        $('#agreementError').html(''); // Clear any agreement error message
+        $('#titleError').html('');
+        $('#fullNameError').html('');
+        $('#contactNumberError').html('');
+        $('#emailError').html('');
+        $('#validIdError').html('');
+    }
+
     initializeCalendar(@json($events));
-
-    setInterval(function() {
-        $.ajax({
-            url: "{{ route('booking') }}", 
-            type: "GET",
-            dataType: 'json',
-            success: function(response) {
-                $('#calendar').fullCalendar('removeEvents');
-                $('#calendar').fullCalendar('addEventSource', response.events); // Update events
-            },
-            error: function(error) {
-                console.error("Error fetching events:", error);
-            }
-        });
-    }, 10000); // Poll every 10 seconds
-
-    // Handle modal close
-    $("#bookingModal").on("hidden.bs.modal", function() {
-        $('#saveBtn').off('click'); // Remove click event from save button
-        $('#title').val(''); // Clear the title input
-        $('#titleError').html(''); // Clear any error messages
-    });
-
-    // Customize FullCalendar event styling
-    $('.fc-event').css({
-        'font-size': '13px',
-        'width': '20px',
-        'border-radius': '50%'
-    });
 });
 </script>
+@ensection
