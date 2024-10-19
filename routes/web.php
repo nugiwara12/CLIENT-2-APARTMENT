@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\UserManagementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MailController;
+use App\Http\Controllers\ApartmentRoomController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 
 Route::get('/', function () {
@@ -36,3 +37,8 @@ Route::controller(UserManagementController::class)->prefix('usermanagement')->gr
     Route::put('{id}', 'update')->name('usermanagement.update');  
     Route::delete('{id}', 'destroy')->name('usermanagement.destroy');
 });
+
+Route::get('/booking', [ApartmentRoomController::class, 'index'])->name('booking');
+Route::post('booking', [ApartmentRoomController::class, 'store'])->name('booking.store');
+Route::patch('booking/update/{id}', [ApartmentRoomController::class, 'update'])->name('booking.update');
+Route::delete('booking/destroy/{id}', [ApartmentRoomController::class, 'destroy'])->name('booking.destroy');

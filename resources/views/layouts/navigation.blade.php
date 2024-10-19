@@ -23,6 +23,13 @@
                         {{ __('Usermanagement') }}
                     </x-nav-link>
                 </div>
+
+                <!-- Navigation Links Of Booking Tenant -->
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('booking')" :active="request()->routeIs('booking')">
+                        {{ __('Booking') }}
+                    </x-nav-link>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->
