@@ -3,7 +3,7 @@
         <h3 class="text-lg font-bold">Add Users</h3>
         <div class="flex justify-end mb-2">
             <!-- Button to open the Add Users modal -->
-            <button class="bg-[#1B76B5] p-2 rounded-md text-white hover:text-white" id="openAddModalButton">
+            <button class="bg-blue-800 p-2 rounded-md text-white hover:text-white" id="openAddModalButton">
                 <i class="bi bi-person-plus"></i> Add Users
             </button>
         </div>
@@ -26,15 +26,15 @@
                     @csrf
                     <!-- Name -->
                     <div>
-                        <x-input-label for="name" :value="__('Name')" class="text-gray-700 font-semibold" />
-                        <x-text-input id="name" class="block mt-1 w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" type="text" name="name" required autofocus autocomplete="name" />
+                        <x-input-label for="name" :value="__('Full Name')" class="text-gray-700 font-semibold" />
+                        <x-text-input id="name" class="block mt-1 w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" type="text" name="name" required autofocus autocomplete="name" placeholder="Full Name" />
                         <x-input-error :messages="$errors->get('name')" class="text-red-500 text-sm mt-2" />
                     </div>
 
                     <!-- Email Address -->
                     <div>
                         <x-input-label for="email" :value="__('Email')" class="text-gray-700 font-semibold" />
-                        <x-text-input id="email" class="block mt-1 w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" type="email" name="email" required autocomplete="username" />
+                        <x-text-input id="email" class="block mt-1 w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" type="email" name="email" required autocomplete="username" placeholder="Email Address" />
                         <x-input-error :messages="$errors->get('email')" class="text-red-500 text-sm mt-2" />
                     </div>
 
@@ -53,19 +53,19 @@
                     <!-- Password -->
                     <div>
                         <x-input-label for="password" :value="__('Password')" class="text-gray-700 font-semibold" />
-                        <x-text-input id="password" class="block mt-1 w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" type="password" name="password" required autocomplete="new-password" />
+                        <x-text-input id="password" class="block mt-1 w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" type="password" name="password" required autocomplete="new-password" placeholder="Password" />
                         <x-input-error :messages="$errors->get('password')" class="text-red-500 text-sm mt-2" />
                     </div>
 
                     <!-- Confirm Password -->
                     <div>
                         <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="text-gray-700 font-semibold" />
-                        <x-text-input id="password_confirmation" class="block mt-1 w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" type="password" name="password_confirmation" required autocomplete="new-password" />
+                        <x-text-input id="password_confirmation" class="block mt-1 w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm Password" />
                         <x-input-error :messages="$errors->get('password_confirmation')" class="text-red-500 text-sm mt-2" />
                     </div>
 
                     <div class="flex items-center justify-end mt-4">
-                        <button type="submit" class="w-full lg:w-auto bg-[#1B76B5] text-white p-2 rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button type="submit" class="w-full lg:w-auto bg-blue-800 text-white p-2 rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             {{ __('Register') }}
                         </button>
                     </div>
