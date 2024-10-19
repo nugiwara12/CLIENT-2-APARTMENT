@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Booking;
+use App\Models\ApartmentRoom;
 
-class BookingController extends Controller
+class ApartmentRoomController extends Controller
 {
+    // Define colors for event titles in a constant array
     private const EVENT_COLORS = [
         'Test' => '#924ACE',
         'Test 1' => '#68B01A',
@@ -14,7 +15,8 @@ class BookingController extends Controller
 
     public function index()
     {
-        $events = Booking::all()->map(function ($booking) {
+        // Fetch all apartment room bookings and map them to events with colors
+        $events = ApartmentRoom::all()->map(function ($booking) {
             return [
                 'id' => $booking->id,
                 'title' => $booking->title,
@@ -24,9 +26,9 @@ class BookingController extends Controller
             ];
         });
 
-        $eventCount = $events->count();
+        $eventCount = $events->count(); // Count the events
 
-        return view('dashboard', [
+        return view('booking.index', [
             'events' => $events,
             'eventCount' => $eventCount
         ]);
@@ -40,7 +42,7 @@ class BookingController extends Controller
             'full_name' => 'required|string',
             'contact_number' => 'required|string',
             'email' => 'required|email',
-            'valid_id' => 'required|image|max:2048', 
+            'valid_id' => 'required|image|max:2048', // Ensure valid ID is an image
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
         ]);
@@ -52,7 +54,7 @@ class BookingController extends Controller
         }
 
         // Create a new booking with the validated data
-        $booking = Booking::create($validatedData);
+        $booking = ApartmentRoom::create($validatedData);
 
         return response()->json([
             'id' => $booking->id,
@@ -65,7 +67,7 @@ class BookingController extends Controller
 
     public function update(Request $request, $id)
     {
-        $booking = Booking::find($id);
+        $booking = ApartmentRoom::find($id);
 
         if (!$booking) {
             return response()->json(['error' => 'Unable to locate the event'], 404);
@@ -78,7 +80,7 @@ class BookingController extends Controller
             'full_name' => 'required|string',
             'contact_number' => 'required|string',
             'email' => 'required|email',
-            'valid_id' => 'required|image|max:2048',
+            'valid_id' => 'required|image|max:2048', // Validate the image
         ]);
 
         // Handle the valid ID update if a new file is uploaded
@@ -95,7 +97,7 @@ class BookingController extends Controller
 
     public function destroy($id)
     {
-        $booking = Booking::find($id);
+        $booking = ApartmentRoom::find($id);
 
         if (!$booking) {
             return response()->json(['error' => 'Unable to locate the event'], 404);
@@ -109,6 +111,6 @@ class BookingController extends Controller
     // Method to get the color for a given event title
     private function getEventColor(string $title): ?string
     {
-        return self::EVENT_COLORS[$title] ?? null;
+        return self::EVENT_COLORS[$title] ?? null; // Return the color or null if not found
     }
 }
