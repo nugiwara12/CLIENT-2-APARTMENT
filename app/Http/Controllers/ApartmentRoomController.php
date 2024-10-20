@@ -35,6 +35,35 @@ class ApartmentRoomController extends Controller
         ]);
     }
 
+    public function forms(Request $request)
+    {
+        // Set the number of events per page
+        $perPage = $request->input('perPage', 6); // Default to 6 if not specified
+    
+        // Fetch paginated apartment room bookings (status = 1)
+        $events = ApartmentRoom::where('status', 1)
+            ->paginate($perPage)
+            ->through(function ($booking) {
+                return [
+                    'id' => $booking->id,
+                    'title' => $booking->title,
+                    'start' => $booking->start_date,
+                    'end' => $booking->end_date,
+                    'color' => $this->getEventColor($booking->title),
+                    'full_name' => $booking->full_name,
+                    'contact_number' => $booking->contact_number,
+                    'email' => $booking->email,
+                    'condition_agreement' => $booking->condition_agreement,
+                ];
+            });
+    
+        return view('booking.forms', [
+            'events' => $events,
+            'eventCount' => $events->total(), // Total number of events
+            'perPage' => $perPage, // Number of entries per page
+        ]);
+    }    
+
     public function store(Request $request)
     {
         try {

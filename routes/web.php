@@ -39,6 +39,7 @@ Route::controller(UserManagementController::class)->prefix('usermanagement')->gr
 });
 
 Route::get('/booking', [ApartmentRoomController::class, 'index'])->name('booking');
+Route::get('/booking/forms', [ApartmentRoomController::class, 'forms'])->name('booking.forms');
 Route::post('booking', [ApartmentRoomController::class, 'store'])->name('booking.store');
 Route::patch('booking/update/{id}', [ApartmentRoomController::class, 'update'])->name('booking.update');
 Route::delete('booking/destroy/{id}', [ApartmentRoomController::class, 'destroy'])->name('booking.destroy');
