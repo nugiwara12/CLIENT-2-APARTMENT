@@ -7,7 +7,7 @@
             </div>
             <div>
                 <span class="block text-2xl font-bold">62</span>
-                <span class="block text-gray-500">Population</span>
+                <span class="block text-gray-500">Booking</span>
             </div>
         </div>
 
@@ -42,7 +42,7 @@
             </div>
             <div>
                 <span class="block text-2xl font-bold">6</span>
-                <span class="block text-black">Voters</span>
+                <span class="block text-black">Reminders</span>
             </div>
         </div>
     </section>

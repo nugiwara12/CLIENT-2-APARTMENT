@@ -16,12 +16,14 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
+    // CSRF token setup
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
 
+    // Initial rendering of calendar with events
     function initializeCalendar(events) {
         $('#calendar').fullCalendar({
             header: {
@@ -29,67 +31,35 @@ $(document).ready(function() {
                 center: 'title',
                 right: 'month,agendaWeek,agendaDay',
             },
-            events: events,
+            events: events, // Initial events
             selectable: true,
             selectHelper: true,
             select: function(start, end) {
+                // Check if the selected start date is in the past
                 if (moment(start).isBefore(moment(), 'day')) {
-                    Swal.fire("Error!", "You cannot create events in the past!", "error");
-                    return;
+                    swal("Error!", "You cannot create events in the past!", "error");
+                    return; // Prevent the modal from opening
                 }
 
+                // Open modal if the date is valid
                 $('#bookingModal').modal('toggle');
-                clearModalFields(); // Clear fields but not error messages
-
                 $('#saveBtn').off('click').on('click', function() {
                     var title = $('#title').val();
                     var full_name = $('#full_name').val();
                     var contact_number = $('#contact_number').val();
                     var email = $('#email').val();
                     var valid_id = $('#dropzone-file-validId')[0].files[0];
-                    var condition_agreement = $('#condition_agreement').is(':checked') ? 1 : 0; // Send as integer
-                    var start_date = moment(start).format('YYYY-MM-DD HH:mm:ss');
-                    var end_date = moment(end).format('YYYY-MM-DD HH:mm:ss');
+                    var condition_agreement = $('#condition_agreement').is(':checked') ? 1 : 0; 
+                    var start_date = moment(start).format('YYYY-MM-DD');
+                    var end_date = moment(end).format('YYYY-MM-DD');
 
-                    // Clear previous errors
-                    clearModalErrors();
-
-                    if (condition_agreement === 0) {
-                        $('#agreementError').html('You must agree to the terms and conditions.');
-                    }
-
-                    // Validate all required fields
-                    let hasErrors = false;
-                    if (!title) {
-                        $('#titleError').html('Title is required.');
-                        hasErrors = true;
-                    }
-                    if (!full_name) {
-                        $('#fullNameError').html('Full Name is required.');
-                        hasErrors = true;
-                    }
-                    if (!contact_number) {
-                        $('#contactNumberError').html('Contact Number is required.');
-                        hasErrors = true;
-                    }
-                    if (!email) {
-                        $('#emailError').html('Email is required.');
-                        hasErrors = true;
-                    }
-                    if (!valid_id) {
-                        $('#validIdError').html('Valid ID is required.');
-                        hasErrors = true;
-                    }
-                    if (hasErrors || condition_agreement === 0) {
-                        return; // Exit if there are errors
-                    }
-
+                    // Create a FormData object
                     var formData = new FormData();
                     formData.append('title', title);
                     formData.append('full_name', full_name);
                     formData.append('contact_number', contact_number);
                     formData.append('email', email);
-                    formData.append('valid_id', valid_id);
+                    formData.append('valid_id', valid_id); // Append the file
                     formData.append('condition_agreement', condition_agreement);
                     formData.append('start_date', start_date);
                     formData.append('end_date', end_date);
@@ -97,156 +67,167 @@ $(document).ready(function() {
                     $.ajax({
                         url: "{{ route('booking.store') }}",
                         type: "POST",
-                        data: formData,
                         processData: false,
                         contentType: false,
+                        data: formData,
                         success: function(response) {
                             $('#bookingModal').modal('hide');
                             $('#calendar').fullCalendar('renderEvent', {
                                 'id': response.id,
-                                'title': `${response.title} (${response.full_name}, ${response.email})`,
+                                'title': response.title,
                                 'start': response.start,
                                 'end': response.end,
                                 'color': response.color || '#3B82F6',
                             });
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: 'Event created successfully!',
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                location.reload(); // Reload the page after success
-                            });
+                            swal("Success!", "Event created successfully!", "success");
                         },
-                        error: function(xhr) {
-                            const errors = xhr.responseJSON.errors || {};
-                            clearModalErrors(); // Clear previous errors
-
-                            let errorMessages = 'Email already exists.\n';
-                            for (const key in errors) {
-                                if (errors.hasOwnProperty(key)) {
-                                    errorMessages += `${errors[key].join(', ')}\n`;
-                                    $(`#${key}Error`).html(errors[key].join(', ')); // Display each field's error
-                                }
+                        error: function(error) {
+                            if (error.responseJSON.errors) {
+                                // Gather all error messages
+                                let errors = Object.entries(error.responseJSON.errors)
+                                    .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+                                    .join('<br>'); // Joining errors by line break
+                                swal("Validation Error!", errors, "error");
+                            } else {
+                                swal("Error!", "Email already exists", "error");
                             }
-
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Validation Error!',
-                                text: errorMessages.trim(),
-                                confirmButtonText: 'OK'
-                            });
                         },
                     });
                 });
             },
             editable: true,
-            eventResize: function(event) {
-                $.ajax({
-                    url: `{{ url('booking') }}/${event.id}`,
-                    type: "PATCH",
-                    data: {
-                        start_date: event.start.format(),
-                        end_date: event.end.format(),
-                    },
-                    success: function(response) {
-                        Swal.fire("Success!", "Event updated successfully!", "success").then(() => {
-                            location.reload(); // Reload the page after update
-                        });
-                    },
-                    error: function(error) {
-                        Swal.fire("Error!", "Unable to update the event.", "error").then(() => {
-                            location.reload(); // Reload the page after error
-                        });
-                    },
+            eventRender: function(event, element) {
+                element.css({
+                    'background-color': event.color || '#3B82F6', // Custom color
+                    'border-radius': '5px',
+                    'padding': '5px',
+                    'font-size': '12px',
+                    'color': '#ffffff', // Font color
                 });
+                element.find('.fc-title').html(event.title);
             },
             eventDrop: function(event) {
+                var id = event.id;
+                var start_date = moment(event.start).format('YYYY-MM-DD');
+                var end_date = moment(event.end).format('YYYY-MM-DD');
+
                 $.ajax({
-                    url: `{{ url('booking') }}/${event.id}`,
+                    url: "{{ route('booking.update', ':id') }}".replace(':id', id),
                     type: "PATCH",
+                    dataType: 'json',
                     data: {
-                        start_date: event.start.format(),
-                        end_date: event.end.format(),
+                        start_date,
+                        end_date
                     },
                     success: function(response) {
-                        Swal.fire("Success!", "Event updated successfully!", "success").then(() => {
-                            location.reload(); // Reload the page after update
-                        });
+                        // Notify the user of a successful update
+                        swal("Success!", "Event updated successfully!", "success");
                     },
                     error: function(error) {
-                        Swal.fire("Error!", "Unable to update the event.", "error").then(() => {
-                            location.reload(); // Reload the page after error
-                        });
+                        // Notify the user of an error during update
+                        swal("Error!", "Failed to update event!", "error");
                     },
                 });
             },
             eventClick: function(event) {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'No, cancel!',
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                var id = event.id;
+
+                swal({
+                    title: "Are you sure?",
+                    text: "Do you want to delete this event?",
+                    icon: "warning",
+                    buttons: {
+                        cancel: {
+                            text: "Cancel",
+                            value: null,
+                            visible: true,
+                            className: "bg-gray-300 text-gray-700 px-4 py-2 rounded",
+                        },
+                        confirm: {
+                            text: "Delete",
+                            value: true,
+                            visible: true,
+                            className: "bg-red-500 text-white px-4 py-2 rounded",
+                        },
+                    },
+                    dangerMode: true,
+                    customClass: {
+                        popup: 'swal-tailwind-popup', 
+                        title: 'text-lg font-bold', 
+                        content: 'text-sm', 
+                    },
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        // Perform the delete action
                         $.ajax({
-                            url: `{{ route('booking.destroy', '') }}/${event.id}`,
+                            url: "{{ route('booking.destroy', ':id') }}".replace(
+                                ':id', id),
                             type: "DELETE",
                             success: function(response) {
-                                // Update UI to reflect the status change
-                                $('#calendar').fullCalendar('removeEvents', event.id);
-                                Swal.fire(
-                                    'Deleted!',
-                                    'Event deleted successfully!',
-                                    'success'
-                                ).then(() => {
-                                    location.reload(); // Reload the page after delete
-                                });
+                                swal("Deleted!", "Your event has been deleted!",
+                                    "success");
+                                $('#calendar').fullCalendar('removeEvents', id);
                             },
                             error: function(error) {
-                                Swal.fire(
-                                    'Error!',
-                                    'Unable to delete the event.',
-                                    'error'
-                                ).then(() => {
-                                    location.reload(); // Reload the page after error
-                                });
+                                swal("Error!", "Failed to delete event!",
+                                    "error");
                             },
                         });
+                    } else {
+                        swal("Cancelled", "Your event is safe", "info");
                     }
                 });
+            },
+            eventAfterRender: function(event, element) {
+                // Set background color for dates to whitesmoke
+                $('.fc-day').css('background-color', 'whitesmoke');
+                // Make past dates dark gray
+                $('.fc-day').each(function() {
+                    var date = $(this).data('date');
+                    if (moment(date).isBefore(moment(), 'day')) {
+                        $(this).css('background-color', '#E5E7EB');
+                    }
+                });
+                // Make day labels bold
+                $('.fc-day-header').css('font-weight', 'bold');
             }
-        });
-
-        $('#bookingModal').on('hidden.bs.modal', function () {
-            clearModalFields(); // Clear fields
-            clearModalErrors(); // Clear errors
         });
     }
 
-    function clearModalFields() {
-        $('#title').val('');
+    // Fetch initial events and initialize calendar
+    initializeCalendar(@json($events));
+
+    setInterval(function() {
+        $.ajax({
+            url: "{{ route('booking') }}", // Replace with your route
+            type: "GET",
+            dataType: 'json',
+            success: function(response) {
+                $('#calendar').fullCalendar('removeEvents');
+                $('#calendar').fullCalendar('addEventSource', response.events); // Update events
+            },
+            error: function(error) {}
+        });
+    }, 10000); // Poll every 10 seconds
+
+    // Handle modal close
+    $("#bookingModal").on("hidden.bs.modal", function() {
+        $('#saveBtn').off('click'); // Remove click event from save button
+        $('#title').val(''); // Clear the title input
         $('#full_name').val('');
         $('#contact_number').val('');
         $('#email').val('');
         $('#dropzone-file-validId').val(''); // Clear the file input
-        $('#condition_agreement').prop('checked', false); // Uncheck the agreement checkbox
-    }
+        $('#condition_agreement').prop('checked', false); 
+        $('#titleError').html(''); // Clear any error messages
+    });
 
-    function clearModalErrors() {
-        $('#agreementError').html(''); // Clear any agreement error message
-        $('#titleError').html('');
-        $('#fullNameError').html('');
-        $('#contactNumberError').html('');
-        $('#emailError').html('');
-        $('#validIdError').html('');
-    }
-
-    initializeCalendar(@json($events));
+    // Customize FullCalendar event styling
+    $('.fc-event').css({
+        'font-size': '13px',
+        'width': '20px',
+        'border-radius': '50%'
+    });
 });
 </script>
 @ensection

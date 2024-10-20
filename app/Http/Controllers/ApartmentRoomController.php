@@ -21,15 +21,19 @@ class ApartmentRoomController extends Controller
                 'title' => $booking->title,
                 'start' => $booking->start_date,
                 'end' => $booking->end_date,
-                'color' => $this->getEventColor($booking->title), // Assuming this method returns a color based on the title
+                'color' => $this->getEventColor($booking->title),
+                'full_name' => $booking->full_name,
+                'contact_number' => $booking->contact_number,
+                'email' => $booking->email,
+                'condition_agreement' => $booking->condition_agreement,
             ];
         });
-    
+
         return view('booking.index', [
             'events' => $events,
             'eventCount' => $events->count(),
         ]);
-    }    
+    }
 
     public function store(Request $request)
     {
@@ -40,7 +44,7 @@ class ApartmentRoomController extends Controller
                 'full_name' => 'required|string',
                 'contact_number' => 'required|string',
                 'email' => 'required|email',
-                'valid_id' => 'required|image|max:2048',
+                'valid_id' => 'required|file|mimes:jpg,png,pdf|max:2048', // Adjust as needed
                 'start_date' => 'required|date',
                 'condition_agreement' => 'required|boolean',
                 'end_date' => 'required|date|after_or_equal:start_date',
@@ -76,49 +80,33 @@ class ApartmentRoomController extends Controller
             return response()->json(['error' => 'Unable to locate the event'], 404);
         }
 
-        try {
-            // Validate the request
-            $validatedData = $request->validate([
-                'start_date' => 'required|date',
-                'end_date' => 'required|date|after_or_equal:start_date',
-                'full_name' => 'required|string',
-                'contact_number' => 'required|string',
-                'email' => 'required|email',
-                'condition_agreement' => 'required|boolean',
-                'valid_id' => 'nullable|image|max:2048', // Allow this to be nullable for updates
-            ]);
+        // Validate the request
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
 
-            // Handle the valid ID update if a new file is uploaded
-            if ($request->hasFile('valid_id')) {
-                $path = $request->file('valid_id')->store('valid_ids', 'public');
-                $validatedData['valid_id'] = $path;
-            }
+        // Update the booking
+        $booking->update($request->only(['start_date', 'end_date']));
 
-            // Update the booking with the validated data
-            $booking->update($validatedData);
-
-            return response()->json('Event updated');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Return validation errors
-            return response()->json(['errors' => $e->validator->errors()], 422);
-        }
-    }
+        return response()->json('Event updated');
+    }    
 
     public function destroy($id)
     {
         // Find the booking by ID
         $booking = ApartmentRoom::find($id);
-    
+
         if (!$booking) {
             return response()->json(['error' => 'Unable to locate the event'], 404);
         }
-    
+
         // Perform "soft delete" by setting the status to 0
         $booking->status = 0; // or whatever the status field is named
         $booking->save();
-    
+
         return response()->json(['id' => $id]);
-    }    
+    }
 
     private function getEventColor(string $title): ?string
     {

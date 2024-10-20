@@ -1,6 +1,6 @@
 <div class="max-w-full mx-auto p-6">
     <div class="text-center mb-4">
-        <h1 class="text-2xl font-bold">Event Calendar</h1>
+        <h1 class="text-2xl font-bold">Event Booking Calendar</h1>
     </div>
     <div id="calendar"></div>
 </div>
