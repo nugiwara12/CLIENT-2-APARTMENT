@@ -45,7 +45,7 @@ $(document).ready(function() {
                 $('#bookingModal').modal('toggle');
                 $('#saveBtn').off('click').on('click', function() {
                     var title = $('#title').val();
-                    var full_name = $('#full_name').val();
+                    var full_name = $('#full_name').val(); // Get full name from the input
                     var contact_number = $('#contact_number').val();
                     var email = $('#email').val();
                     var valid_id = $('#dropzone-file-validId')[0].files[0];
@@ -56,7 +56,7 @@ $(document).ready(function() {
                     // Create a FormData object
                     var formData = new FormData();
                     formData.append('title', title);
-                    formData.append('full_name', full_name);
+                    formData.append('full_name', full_name); // Append full name
                     formData.append('contact_number', contact_number);
                     formData.append('email', email);
                     formData.append('valid_id', valid_id); // Append the file
@@ -75,6 +75,7 @@ $(document).ready(function() {
                             $('#calendar').fullCalendar('renderEvent', {
                                 'id': response.id,
                                 'title': response.title,
+                                'full_name': response.full_name, 
                                 'start': response.start,
                                 'end': response.end,
                                 'color': response.color || '#3B82F6',
@@ -83,15 +84,33 @@ $(document).ready(function() {
                         },
                         error: function(error) {
                             if (error.responseJSON.errors) {
-                                // Gather all error messages
-                                let errors = Object.entries(error.responseJSON.errors)
-                                    .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
-                                    .join('<br>'); // Joining errors by line break
-                                swal("Validation Error!", errors, "error");
+                                // Gather all error messages and create an array of elements
+                                let errorsHtml = Object.entries(error.responseJSON.errors)
+                                    .map(([field, messages]) => 
+                                        `<span class="text-red-500 font-semibold">${field}:</span> 
+                                        <span class="text-gray-700">${messages.join(', ')}</span>`)
+                                    .join(' | '); // Joining errors by pipe for inline layout
+                                
+                                swal({
+                                    title: "Validation Error!",
+                                    content: {
+                                        element: "div",
+                                        attributes: {
+                                            innerHTML: errorsHtml,
+                                        },
+                                    },
+                                    icon: "error",
+                                    buttons: {
+                                        confirm: {
+                                            text: "OK",
+                                            className: "bg-blue-500 text-white px-4 py-2 rounded",
+                                        },
+                                    },
+                                });
                             } else {
                                 swal("Error!", "Email already exists", "error");
                             }
-                        },
+                        }
                     });
                 });
             },
@@ -103,8 +122,13 @@ $(document).ready(function() {
                     'padding': '5px',
                     'font-size': '12px',
                     'color': '#ffffff', // Font color
+                    'white-space': 'normal', // Allow text to wrap
+                    'overflow': 'visible', // Allow overflowing content to be visible
+                    'width': 'auto', // Allow width to adjust to content
                 });
-                element.find('.fc-title').html(event.title);
+
+                // Update the display to include both title and full name
+                element.find('.fc-title').html(event.title + '<br>' + event.full_name);
             },
             eventDrop: function(event) {
                 var id = event.id;
@@ -160,17 +184,14 @@ $(document).ready(function() {
                     if (willDelete) {
                         // Perform the delete action
                         $.ajax({
-                            url: "{{ route('booking.destroy', ':id') }}".replace(
-                                ':id', id),
+                            url: "{{ route('booking.destroy', ':id') }}".replace(':id', id),
                             type: "DELETE",
                             success: function(response) {
-                                swal("Deleted!", "Your event has been deleted!",
-                                    "success");
+                                swal("Deleted!", "Your event has been deleted!", "success");
                                 $('#calendar').fullCalendar('removeEvents', id);
                             },
                             error: function(error) {
-                                swal("Error!", "Failed to delete event!",
-                                    "error");
+                                swal("Error!", "Failed to delete event!", "error");
                             },
                         });
                     } else {
@@ -181,11 +202,16 @@ $(document).ready(function() {
             eventAfterRender: function(event, element) {
                 // Set background color for dates to whitesmoke
                 $('.fc-day').css('background-color', 'whitesmoke');
-                // Make past dates dark gray
+
+                // Make past dates dark gray and disable them
                 $('.fc-day').each(function() {
                     var date = $(this).data('date');
                     if (moment(date).isBefore(moment(), 'day')) {
-                        $(this).css('background-color', '#E5E7EB');
+                        $(this).css({
+                            'background-color': '#D3D3D3', // Grayed out past dates
+                            'pointer-events': 'none' // Disable interaction
+                        });
+                        $(this).find('.fc-day-number').css('color', '#A0AEC0'); // Gray out the date number
                     }
                 });
                 // Make day labels bold
@@ -199,22 +225,22 @@ $(document).ready(function() {
 
     setInterval(function() {
         $.ajax({
-            url: "{{ route('booking') }}", // Replace with your route
+            url: "{{ route('booking') }}",
             type: "GET",
             dataType: 'json',
             success: function(response) {
                 $('#calendar').fullCalendar('removeEvents');
-                $('#calendar').fullCalendar('addEventSource', response.events); // Update events
+                $('#calendar').fullCalendar('addEventSource', response.events); 
             },
             error: function(error) {}
         });
-    }, 10000); // Poll every 10 seconds
+    }, 10000); 
 
     // Handle modal close
     $("#bookingModal").on("hidden.bs.modal", function() {
         $('#saveBtn').off('click'); // Remove click event from save button
         $('#title').val(''); // Clear the title input
-        $('#full_name').val('');
+        $('#full_name').val(''); // Clear full name input
         $('#contact_number').val('');
         $('#email').val('');
         $('#dropzone-file-validId').val(''); // Clear the file input
@@ -225,8 +251,8 @@ $(document).ready(function() {
     // Customize FullCalendar event styling
     $('.fc-event').css({
         'font-size': '13px',
-        'width': '20px',
-        'border-radius': '50%'
+        'width': 'auto', // Changed width to auto to accommodate text
+        'border-radius': '5px', // Changed border-radius to make it more rectangular
     });
 });
 </script>

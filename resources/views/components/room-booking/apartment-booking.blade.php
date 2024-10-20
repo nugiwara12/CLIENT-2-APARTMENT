@@ -17,7 +17,7 @@
                     </svg>
                 </button>
             </div>
-            <div class="modal-body p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="modal-body p-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="text-sm font-semibold mb-2" for="title">Title</label>
                     <input type="text" id="title" class="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter event title">
@@ -42,17 +42,9 @@
                     <span id="emailError" class="text-red-500 mt-1 text-sm"></span>
                 </div>
 
-                <div class="col-span-2">
-                    <label class="flex items-center mt-4">
-                        <input type="checkbox" id="condition_agreement" class="mr-2">
-                        <span class="text-sm">I agree to the terms and conditions</span>
-                    </label>
-                    <span id="agreementError" class="text-red-500"></span>
-                </div>
-
                 <!-- Valid ID Upload Field -->
                 <div class="col-span-1 md:col-span-2">
-                    <label for="">Valid Id</label>
+                    <label class="text-sm font-semibold mb-2" for="">Valid Id</label>
                     <div class="flex items-center justify-center w-full">
                         <label for="dropzone-file-validId" class="flex flex-col items-center justify-center w-full h-44 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer">
                             <div id="validId" class="flex flex-col items-center justify-center">
@@ -68,6 +60,31 @@
                     </div>
                     <span id="validIdError" class="text-red-500 mt-1 text-sm"></span>
                 </div>
+
+                <div class="max-w-full mx-auto whitespace-nowrap">
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="agreementCheckbox" class="mr-2">
+                        <label for="agreementCheckbox" class="text-sm">I agree to the terms and conditions</label>
+                    </div>
+                    <!-- Agreement Modal -->
+                    <div id="agreementModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50">
+                        <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-lg">
+                            <h3 class="text-lg font-semibold mb-4">Terms and Conditions</h3>
+                            <p class="mb-4">Please read and agree to the following terms and conditions before proceeding with your booking:</p>
+                            <ul class="list-disc list-inside mb-4">
+                                <li>All bookings are subject to availability.</li>
+                                <li>Cancellation policies may apply based on the selected apartment.</li>
+                                <li>Guests must adhere to house rules and regulations.</li>
+                                <li>Damage to property may result in additional charges.</li>
+                                <li>Check-in and check-out times must be respected.</li>
+                            </ul>
+                            <div class="mt-4 flex justify-end">
+                                <button id="confirmAgreement" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">I Agree</button>
+                                <button id="closeModal" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 ml-2">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer border-t p-4 flex justify-end">
                 <button type="button" id="saveBtn" class="bg-blue-600 text-white rounded-md px-4 py-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out">Save</button>
@@ -76,7 +93,40 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+document.getElementById('agreementCheckbox').addEventListener('change', function() {
+    var agreementModal = document.getElementById('agreementModal');
+    if (this.checked) {
+        agreementModal.classList.remove('hidden'); // Show the modal
+    } else {
+        agreementModal.classList.add('hidden'); // Hide the modal if unchecked
+    }
+});
+
+// Close modal when clicking the close button
+document.getElementById('closeModal').addEventListener('click', function() {
+    document.getElementById('agreementModal').classList.add('hidden');
+    document.getElementById('agreementCheckbox').checked = false; // Uncheck the checkbox
+});
+
+// Confirm agreement action
+document.getElementById('confirmAgreement').addEventListener('click', function() {
+    // Use SweetAlert to show a thank you message
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Thank You So Much!',
+        confirmButtonText: 'Continue'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('agreementModal').classList.add('hidden');
+            document.getElementById('agreementCheckbox').checked = true; // Keep checkbox checked
+        }
+    });
+});
+
+// Image preview
 function previewImage(event, previewId) {
     const file = event.target.files[0];
     const preview = document.getElementById(previewId);
