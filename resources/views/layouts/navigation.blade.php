@@ -30,6 +30,16 @@
                         {{ __('Booking') }}
                     </x-nav-link>
                 </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('rooms.index')" :active="request()->routeIs('rooms.index')">
+                        {{ __('Available Rooms') }}
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">
+                        {{ __('Contact Us Messages') }}
+                    </x-nav-link>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->

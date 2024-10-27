@@ -46,15 +46,15 @@
                     <nav class="main-nav">
                         <!-- ***** Logo Start ***** -->
                         <a href="/" class="logo">
-                            <h1>APARTMENT SYSTEM</h1>
+                            <h1>APARTMENT</h1>
                         </a>
                         <!-- ***** Logo End ***** -->
                         <!-- ***** Menu Start ***** -->
                         <ul class="nav">
                             <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}">HOME</a></li>
                             <li><a href="{{ route('booking.forms') }}" class="{{ request()->is('booking-forms') ? 'active' : '' }}">RENT APARTMENT</a></li>
-                            <li><a href="property-details.html" class="{{ request()->is('property-details') ? 'active' : '' }}">ABOUT US</a></li>
-                            <li><a href="contact.html" class="{{ request()->is('contact') ? 'active' : '' }}">CONTACT US</a></li>
+                            <li><a href="{{ route('nav-contents.about_us') }}" class="{{ request()->is('nav-contents.about_us') ? 'active' : '' }}">ABOUT US</a></li>
+                            <li><a href="{{ route('nav-contents.contactus') }}" class="{{ request()->is('nav-contents-contactus') ? 'active' : '' }}">CONTACT US</a></li>
                             <li><a href="#" class="{{ request()->is('signin') ? 'active' : '' }}"><i class="bi bi-person-circle"></i>SIGN IN</a></li>
                         </ul>   
                         <a class='menu-trigger'>

@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\ApartmentRoomController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\NotificationController;
+use App\Http\Controllers\RoomController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\AboutController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,3 +47,37 @@ Route::get('/booking/forms', [ApartmentRoomController::class, 'forms'])->name('b
 Route::post('booking', [ApartmentRoomController::class, 'store'])->name('booking.store');
 Route::patch('booking/update/{id}', [ApartmentRoomController::class, 'update'])->name('booking.update');
 Route::delete('booking/destroy/{id}', [ApartmentRoomController::class, 'destroy'])->name('booking.destroy');
+
+Route::get('/send-notification', [NotificationController::class, 'sendNotification']);
+
+Route::get('/about', [AboutController::class, 'index'])->name('nav-contents.about_us');
+
+Route::middleware(['auth'])->group(function () {
+   // Route to show the available rooms
+    Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
+
+    // Route to show the create room form
+    Route::get('/rooms/create', [RoomController::class, 'create'])->name('rooms.create');
+
+    // Route to store a new room
+    Route::post('/rooms', [RoomController::class, 'store'])->name('rooms.store');
+
+    // Route to show the edit form for a room
+    Route::get('/rooms/{room}/edit', [RoomController::class, 'edit'])->name('rooms.edit');
+
+    // Route to update a room
+    Route::put('/rooms/{room}', [RoomController::class, 'update'])->name('rooms.update');
+
+    // Route to delete a room
+    Route::delete('/rooms/{room}', [RoomController::class, 'destroy'])->name('rooms.destroy');
+
+});
+
+
+
+Route::get('/contact', [ContactController::class, 'create'])->name('nav-contents.contactus');
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::get('/contacts', [ContactController::class, 'index'])->name('contact.index'); // List all contacts
+Route::get('/contacts/{id}/edit', [ContactController::class, 'edit'])->name('contact.edit'); // Edit a specific contact
+Route::put('/contacts/{id}', [ContactController::class, 'update'])->name('contact.update'); // Update a specific contact
+Route::delete('/contact/{id}', [ContactController::class, 'destroy'])->name('contact.destroy');
