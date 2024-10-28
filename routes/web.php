@@ -71,6 +71,8 @@ Route::middleware(['auth'])->group(function () {
     // Route to delete a room
     Route::delete('/rooms/{room}', [RoomController::class, 'destroy'])->name('rooms.destroy');
 
+    Route::get('/room/details/{id}', [RoomController::class, 'show'])->name('rooms.details');
+
 });
 
 

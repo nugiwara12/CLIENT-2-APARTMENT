@@ -30,16 +30,39 @@
     <div class="container">
         <ul class="properties-filter">
             <li>
-                <a class="is_active" href="#!" data-filter="*">APARTMENT</a>
+                <a class="is_active" href="#!" data-filter="*">APARTMENTS AVAILABLE</a>
             </li>
         </ul>
-
+        <div class="row"> <!-- Row for horizontal alignment -->
+            @foreach($rooms as $room)
+                @if($room->available) <!-- Only show if the room is available -->
+                <div class="col-md-4 mb-4"> <!-- Adjust column width for responsiveness -->
+                    <div class="p-4 bg-white rounded-lg shadow-md border">
+                        <ul class="list-unstyled">
+                            <li>Room Number: <span class="font-weight-bold">{{ $room['room_number'] }}</span></li>
+                            <li>Price: <span class="font-weight-bold">Php{{ number_format($room->price, 2) }}</span></li>
+                            <li>Description: <span class="font-weight-bold">{{ $room->description }}</span></li>
+                            <li>Availability: <span class="font-weight-bold">Available</span></li>
+                        </ul>
+                        <div class="main-button mt-4">
+                            <a href="{{ route('rooms.details', ['id' => $room->id]) }}" class="btn btn-primary btn-block">Inquire</a>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            @endforeach
+        </div>
+        <ul class="properties-filter pt-10">
+            <li>
+                <a class="is_active" href="#!" data-filter="*">FOR SCHEDULES</a>
+            </li>
+        </ul>
         <div class="row properties-box">
             @foreach($events as $event) <!-- Loop through events -->
             <div class="col-lg-4 col-md-6 mb-30 properties-items">
                 <div class="item border rounded-lg shadow-lg p-4 bg-white">
                     <a href="property-details.html" class="d-block mb-3">
-                        <!-- Image -->
+                        
                     </a>
                     <span class="category badge badge-secondary">{{ $event['title'] }}</span>
                     <ul class="list-unstyled mt-3">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ApartmentRoom;
+use App\Models\Room;
 
 class ApartmentRoomController extends Controller
 {
@@ -28,7 +29,6 @@ class ApartmentRoomController extends Controller
                 'condition_agreement' => $booking->condition_agreement,
             ];
         });
-
         return view('booking.index', [
             'events' => $events,
             'eventCount' => $events->count(),
@@ -56,8 +56,9 @@ class ApartmentRoomController extends Controller
                     'condition_agreement' => $booking->condition_agreement,
                 ];
             });
-    
+        $rooms = Room::where('available', true)->get();
         return view('booking.forms', [
+            'rooms' => $rooms,
             'events' => $events,
             'eventCount' => $events->total(), // Total number of events
             'perPage' => $perPage, // Number of entries per page

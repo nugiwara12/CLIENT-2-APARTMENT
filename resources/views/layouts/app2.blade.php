@@ -8,7 +8,9 @@
 
     <title>{{ config('app.name', 'MABALACAT DORM: A WEB APPLICATION FOR ENHANCED TENANT MONITORING AND MANAGEMENT') }}</title>
 
-    <!-- Fonts -->
+    <!-- Fonts and CSS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -31,33 +33,37 @@
     <link rel="stylesheet" href="{{ asset('admin_assets/assets/css/templatemo-villa-agency.css')}}">
     <link rel="stylesheet" href="{{ asset('admin_assets/assets/css/owl.css')}}">
     <link rel="stylesheet" href="{{ asset('admin_assets/assets/css/animate.css')}}">
-    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
+
     @yield('styles')
-    <!-- Scripts -->
+
+    <!-- Vite Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body class="font-sans antialiased">
     <!-- ***** Header Area Start ***** -->
-    <!-- Navbar  -->
     <div class="header-area header-sticky">
         <div class="container">
             <div class="row">
                 <div class="col-12">
                     <nav class="main-nav">
-                        <!-- ***** Logo Start ***** -->
+                        <!-- Logo -->
                         <a href="/" class="logo">
                             <h1>APARTMENT</h1>
                         </a>
-                        <!-- ***** Logo End ***** -->
-                        <!-- ***** Menu Start ***** -->
+
+                        <!-- Menu -->
                         <ul class="nav">
                             <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}">HOME</a></li>
                             <li><a href="{{ route('booking.forms') }}" class="{{ request()->is('booking-forms') ? 'active' : '' }}">RENT APARTMENT</a></li>
                             <li><a href="{{ route('nav-contents.about_us') }}" class="{{ request()->is('nav-contents.about_us') ? 'active' : '' }}">ABOUT US</a></li>
                             <li><a href="{{ route('nav-contents.contactus') }}" class="{{ request()->is('nav-contents-contactus') ? 'active' : '' }}">CONTACT US</a></li>
                             <li><a href="#" class="{{ request()->is('signin') ? 'active' : '' }}"><i class="bi bi-person-circle"></i>SIGN IN</a></li>
-                        </ul>   
-                        <a class='menu-trigger'>
+                        </ul>
+
+                        <!-- Mobile Menu Trigger -->
+                        <a class="menu-trigger">
                             <span>Menu</span>
                         </a>
                     </nav>
@@ -65,13 +71,11 @@
             </div>
         </div>
     </div>
-    <!-- Main Content  -->
+
+    <!-- Main Content -->
     @yield('contents')
 
-    <!-- End of Main Content  -->
-
-    <!-- Footer  -->
-
+    <!-- Footer -->
     <div class="tap-to-top">
         <a href="#page-top">
             <i class="fas fa-chevron-up"></i>
@@ -79,21 +83,21 @@
     </div>
     <div class="bg-overlay"></div>
 
-    <!-- jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- jQuery (full version) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
 
-    <!-- Scripts -->
-    <script src="{{ asset('admin_assets/vendor/jquery/jquery.min.js')}}"></script>
+    <!-- Other Scripts -->
     <script src="{{ asset('admin_assets/vendor/bootstrap/js/bootstrap.min.js')}}"></script>
     <script src="{{ asset('admin_assets/assets/js/isotope.min.js')}}"></script>
     <script src="{{ asset('admin_assets/assets/js/owl-carousel.js')}}"></script>
     <script src="{{ asset('admin_assets/assets/js/counter.js')}}"></script>
     <script src="{{ asset('admin_assets/assets/js/custom.js')}}"></script>
+
+    <!-- Additional Custom Scripts -->
     @yield('scripts')
 </body>
 </html>

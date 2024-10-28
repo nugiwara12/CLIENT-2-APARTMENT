@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Room;
+use App\Models\ApartmentRoom;
 use Illuminate\Http\Request;
 
 class RoomController extends Controller
@@ -54,9 +55,21 @@ class RoomController extends Controller
         return redirect()->route('rooms.index')->with('success', 'Room updated successfully.');
     }
 
+    public function show($id)
+    {
+        $room = Room::findOrFail($id);
+        
+
+        $events = ApartmentRoom::where('id', $id)->get();
+        return view('rooms.details', compact('room', 'events')); 
+    }
+
+
+
     public function destroy(Room $room)
     {
         $room->delete();
         return redirect()->route('rooms.index')->with('success', 'Room deleted successfully.');
     }
+    
 }
