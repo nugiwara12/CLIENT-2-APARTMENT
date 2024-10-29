@@ -19,6 +19,11 @@ return new class extends Migration
             $table->integer('capacity'); // Maximum number of occupants
             $table->text('description')->nullable();
             $table->boolean('available')->default(true); // Room availability status
+            $table->string('apartment_image')->nullable();
+            $table->string('bathroom_image')->nullable();
+            $table->string('outside_image')->nullable();
+            $table->string('occupied_image')->nullable();
+            $table->string('vacant_image')->nullable();
             $table->timestamps();
         });
     }

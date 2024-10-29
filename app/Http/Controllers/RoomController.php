@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Room;
 use App\Models\ApartmentRoom;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class RoomController extends Controller
 {
@@ -18,6 +19,13 @@ class RoomController extends Controller
     {
         return view('rooms.create');
     }
+    public function show($id)
+    {
+        $room = Room::findOrFail($id);
+        
+        $events = ApartmentRoom::where('id', $id)->get();
+        return view('rooms.details', compact('room', 'events')); 
+    }
 
     public function store(Request $request)
     {
@@ -27,10 +35,34 @@ class RoomController extends Controller
             'price' => 'required|numeric',
             'capacity' => 'required|integer|min:1',
             'description' => 'nullable|string',
-            'available' => 'boolean',
+            'available' => 'required|boolean',
+            'apartment_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'bathroom_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'outside_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'occupied_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'vacant_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        Room::create($request->all());
+        // Create new room instance
+        $room = new Room();
+        $room->room_number = $request->room_number;
+        $room->type = $request->type;
+        $room->price = $request->price;
+        $room->capacity = $request->capacity;
+        $room->description = $request->description;
+        $room->available = $request->available;
+
+        // Handle image uploads
+        $imageFields = ['apartment_image', 'bathroom_image', 'outside_image', 'occupied_image', 'vacant_image'];
+        
+        foreach ($imageFields as $field) {
+            if ($request->hasFile($field)) {
+                $room->$field = $request->file($field)->store('rooms/images', 'public');
+            }
+        }
+
+        // Save room to the database
+        $room->save();
 
         return redirect()->route('rooms.index')->with('success', 'Room added successfully.');
     }
@@ -48,28 +80,55 @@ class RoomController extends Controller
             'price' => 'required|numeric',
             'capacity' => 'required|integer|min:1',
             'description' => 'nullable|string',
-            'available' => 'boolean',
+            'available' => 'required|boolean',
+            'apartment_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'bathroom_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'outside_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'occupied_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'vacant_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $room->update($request->all());
+        // Update room instance
+        $room->room_number = $request->room_number;
+        $room->type = $request->type;
+        $room->price = $request->price;
+        $room->capacity = $request->capacity;
+        $room->description = $request->description;
+        $room->available = $request->available;
+
+        // Handle image updates
+        $imageFields = ['apartment_image', 'bathroom_image', 'outside_image', 'occupied_image', 'vacant_image'];
+
+        foreach ($imageFields as $field) {
+            if ($request->hasFile($field)) {
+                // Delete old image if it exists
+                if ($room->$field) {
+                    Storage::disk('public')->delete($room->$field);
+                }
+                $room->$field = $request->file($field)->store('rooms/images', 'public');
+            }
+        }
+
+        // Save updates to the database
+        $room->save();
+
         return redirect()->route('rooms.index')->with('success', 'Room updated successfully.');
     }
 
-    public function show($id)
-    {
-        $room = Room::findOrFail($id);
-        
-
-        $events = ApartmentRoom::where('id', $id)->get();
-        return view('rooms.details', compact('room', 'events')); 
-    }
-
-
-
     public function destroy(Room $room)
     {
+        // Delete images from storage if they exist
+        $imageFields = ['apartment_image', 'bathroom_image', 'outside_image', 'occupied_image', 'vacant_image'];
+
+        foreach ($imageFields as $field) {
+            if ($room->$field) {
+                Storage::disk('public')->delete($room->$field);
+            }
+        }
+
+        // Delete the room record
         $room->delete();
+
         return redirect()->route('rooms.index')->with('success', 'Room deleted successfully.');
     }
-    
 }

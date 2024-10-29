@@ -16,5 +16,15 @@ class Room extends Model
         'capacity',
         'description',
         'available',
+        'apartment_image',
+        'bathroom_image',
+        'outside_image',
+        'occupied_image',
+        'vacant_image',
     ];
+    
+    public function apartmentRooms()
+    {
+        return $this->hasMany(ApartmentRoom::class);
+    }
 }
