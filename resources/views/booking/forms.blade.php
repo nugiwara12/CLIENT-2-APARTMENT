@@ -45,7 +45,7 @@
                             <li>Availability: <span class="font-weight-bold">Available</span></li>
                         </ul>
                         <div class="main-button mt-4">
-                            <a href="{{ route('rooms.details', ['id' => $room->id]) }}" class="btn btn-primary btn-block">Inquire</a>
+                            <a href="" class="btn btn-primary btn-block">Inquire</a>
                         </div>
                     </div>
                 </div>

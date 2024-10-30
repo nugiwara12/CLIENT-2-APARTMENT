@@ -10,9 +10,21 @@ use Illuminate\Support\Facades\Storage;
 
 class RoomController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $rooms = Room::all();
+        // Retrieve the number of entries to display per page from the request or set a default value
+        $perPage = $request->input('per_page', 10); // default to 10 entries per page
+        
+        // Get the search term from the request
+        $search = $request->input('search');
+    
+        // Paginate the rooms, filtering by search term if provided
+        $rooms = Room::when($search, function ($query, $search) {
+            return $query->where('room_number', 'like', "%{$search}%")
+                         ->orWhere('type', 'like', "%{$search}%")
+                         ->orWhere('description', 'like', "%{$search}%");
+        })->paginate($perPage);
+        
         return view('rooms.index', compact('rooms'));
     }
 
@@ -33,7 +45,7 @@ class RoomController extends Controller
         $request->validate([
             'room_number' => 'required|string|max:255',
             'type' => 'required|string|max:255',
-            'price' => 'required|numeric',
+            'price' => 'required|string|regex:/^\d+(\.\d{1,2})?$/',
             'capacity' => 'required|integer|min:1',
             'description' => 'nullable|string',
             'available' => 'required|boolean',
