@@ -280,20 +280,6 @@
     </div>
   </div>
 
-  <div id="contact-form" class="contact-content">
-   <!-- Modal for success message -->
-   <div id="success-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white rounded-lg p-4 max-w-sm w-54">
-        <h3 class="text-lg font-semibold text-green-700 text-center">Success!</h3>
-        <p id="success-message" class="text-gray-600 text-center"></p>
-        <div class="flex justify-center mt-2">
-            <button id="close-modal" class="px-2 w-1/3 h-8 bg-red-500 text-white font-semibold rounded hover:bg-red-600 transition-colors">
-                OK
-            </button>
-        </div>
-      </div>
-  </div>
-
 
     <!-- Contact Us Section -->
     <div class="contact-content">
@@ -340,41 +326,84 @@
                     </div>
                     <!-- Right Section - Contact Form -->
                     <div class="w-full lg:w-5/12">
-                        <form id="contact-form" action="{{ route('contact.store') }}" method="POST" class="bg-white shadow-lg rounded-lg p-8">
-                            @csrf
-                            <div class="grid grid-cols-1 gap-6">
-                                <input class="input border-2 border-gray-300 rounded px-4 h-12" type="text" name="full_name" placeholder="Full Name" required>
-                                <input class="input border-2 border-gray-300 rounded px-4 h-12" type="email" name="email" placeholder="Email Address" required>
-                                <input class="input border-2 border-gray-300 rounded px-4 h-12" type="tel" name="phone_number" placeholder="Phone Number">
-                                <textarea class="textinput border-2 border-gray-300 rounded px-4 py-2 h-48" name="message" placeholder="Your Message" required></textarea>
+                      <!-- Loading overlay -->
+                      <div id="loading-overlay" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+                          <div class="text-white text-lg">
+                            <div class="fixed inset-0 flex space-x-2 justify-center items-center bg-black bg-opacity-50 h-screen">
+                                <span class="sr-only">Loading...</span>
+                                <div class="h-8 w-8 bg-orange-600 rounded-full animate-bounce" style="animation-delay: -0.3s;"></div>
+                                <div class="h-8 w-8 bg-orange-600 rounded-full animate-bounce" style="animation-delay: -0.15s;"></div>
+                                <div class="h-8 w-8 bg-orange-600 rounded-full animate-bounce"></div>
                             </div>
-                            <button type="submit" class="send w-full h-12 bg-red-500 text-white font-semibold rounded mt-4 hover:bg-red-600 transition-colors">
-                                Send Message
-                            </button>
-                        </form>
+                          </div>
+                      </div>
+                      <!-- Contact Form -->
+                      <form id="contact-form" action="{{ route('contact.store') }}" method="POST" class="bg-white shadow-lg rounded-lg p-8">
+                          @csrf
+                          <div class="grid grid-cols-1 gap-6">
+                              <input class="input border-2 border-gray-300 rounded px-4 h-12" type="text" name="full_name" placeholder="Full Name" required>
+                              <input class="input border-2 border-gray-300 rounded px-4 h-12" type="email" name="email" placeholder="Email Address" required>
+                              <input class="input border-2 border-gray-300 rounded px-4 h-12" type="tel" name="phone_number" placeholder="Phone Number">
+                              <textarea class="textinput border-2 border-gray-300 rounded px-4 py-2 h-48" name="message" placeholder="Your Message" required></textarea>
+                          </div>
+                          <button type="submit" class="send w-full h-12 bg-red-500 text-white font-semibold rounded mt-4 hover:bg-red-600 transition-colors">
+                              Send Message
+                          </button>
+                      </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Check for session success message
-        @if(session('success'))
-            const modal = document.getElementById('success-modal');
-            const successMessage = document.getElementById('success-message');
-            successMessage.textContent = "{{ session('success') }}"; // Set the success message
-            modal.classList.remove('hidden'); // Show the modal
-        @endif
 
-        // Close modal functionality
-        document.getElementById('close-modal').addEventListener('click', function() {
-            const modal = document.getElementById('success-modal');
-            modal.classList.add('hidden'); // Hide the modal
+
+<!-- Include jQuery and SweetAlert2 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $('#contact-form').on('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Show loading overlay
+        $('#loading-overlay').removeClass('hidden');
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: $(this).serialize(),
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                // Hide loading overlay
+                $('#loading-overlay').addClass('hidden');
+
+                // Show success alert and reload page on confirmation
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Your message has been sent successfully.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+            },
+            error: function(xhr) {
+                // Hide loading overlay
+                $('#loading-overlay').addClass('hidden');
+
+                // Show error alert
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'There was an error sending your message. Please try again.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
         });
     });
 </script>
-
-
-  @endsection
+@endsection
