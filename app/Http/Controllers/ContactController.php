@@ -10,6 +10,25 @@ use App\Mail\ContactConfirmation;
 
 class ContactController extends Controller
 {
+    
+    // Method to display all contacts
+    public function index(Request $request)
+    {
+        // Get the number of entries to show per page, defaulting to 10 if not specified
+        $perPage = $request->input('entries', 10);
+    
+        // Get the search term from the request
+        $searchTerm = $request->input('search', '');
+    
+        // Retrieve contacts with pagination, applying the search filter if provided
+        $contacts = Contact::where('full_name', 'like', "%{$searchTerm}%")
+            ->orWhere('email', 'like', "%{$searchTerm}%")
+            ->orWhere('phone_number', 'like', "%{$searchTerm}%")
+            ->paginate($perPage);
+    
+        return view('contact.index', compact('contacts', 'perPage', 'searchTerm')); // Pass data to view
+    }       
+
     // Method to show the contact form
     public function create()
     {
@@ -38,13 +57,6 @@ class ContactController extends Controller
         \Log::info('Contact message sent successfully.');
 
         return redirect()->back()->with('success', 'Your message has been sent successfully!');
-    }
-
-    // Method to display all contacts
-    public function index()
-    {
-        $contacts = Contact::all(); // Retrieve all contacts
-        return view('contact.index', compact('contacts')); // Pass data to view
     }
 
     // Method to show the edit form for a specific contact
