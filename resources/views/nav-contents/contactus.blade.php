@@ -1,10 +1,9 @@
-@extends('layouts.app2')
+<!-- @extends('layouts.app2')
 
 @section('contents')
 <div class="contact-section new_home_web relative py-12 bg-gray-100">
   <div class="container mx-auto px-4 max-w-6xl">
     
-    <!-- Header Section -->
     <div class="text-center mb-10">
       <h6 class="text-orange-600 font-semibold">| Contact Us</h6>
       <h2 class="text-4xl font-semibold mb-4">Get In Touch With Our Agents</h2>
@@ -16,7 +15,6 @@
 
     <div class="flex flex-col lg:flex-row gap-10">
 
-      <!-- Left Section - Map and Contact Details -->
       <div class="w-full lg:w-7/12">
         <div id="map" class="mb-6">
           <iframe 
@@ -48,7 +46,6 @@
 
       </div>
 
-      <!-- Right Section - Contact Form -->
       <div class="w-full lg:w-5/12">
         <form id="contact-form" action="{{ route('contact.store') }}" method="POST" class="bg-white shadow-lg rounded-lg p-8">
           @csrf
@@ -67,4 +64,4 @@
     </div>
   </div>
 </div>
-@endsection
+@endsection -->
