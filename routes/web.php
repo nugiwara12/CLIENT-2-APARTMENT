@@ -71,6 +71,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/rooms/details/{id}', [RoomController::class, 'show'])->name('rooms.details');
 });
 
+
 Route::get('/contact', [ContactController::class, 'create'])->name('welcome');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 Route::get('/contacts', [ContactController::class, 'index'])->name('contact.index'); // List all contacts

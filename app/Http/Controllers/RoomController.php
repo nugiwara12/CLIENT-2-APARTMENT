@@ -37,7 +37,7 @@ class RoomController extends Controller
     {
         $room = Room::findOrFail($id);
         $events = ApartmentRoom::where('id', $id)->get();
-        return view('rooms.details', compact('room', 'events')); 
+        return view('booking.forms', compact('room', 'events')); 
     }
 
     public function store(Request $request)
@@ -75,7 +75,7 @@ class RoomController extends Controller
         
         foreach ($imageFields as $field) {
             if ($request->hasFile($field)) {
-                $room->$field = $request->file($field)->store('rooms/images', 'public');
+                $room->$field = $request->file($field)->store('rooms/', 'public');
             }
         }
     
@@ -123,7 +123,7 @@ class RoomController extends Controller
                 if ($room->$field) {
                     Storage::disk('public')->delete($room->$field);
                 }
-                $room->$field = $request->file($field)->store('rooms/images', 'public');
+                $room->$field = $request->file($field)->store('rooms/', 'public');
             }
         }
     
@@ -212,7 +212,7 @@ class RoomController extends Controller
 
     public function restore($id)
     {
-        if (!in_array(Auth::user()->role, ['admin', 'seller'])) {
+        if (!in_array(Auth::user()->role, ['admin', 'users'])) {
             return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
         }
         
