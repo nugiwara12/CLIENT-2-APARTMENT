@@ -52,13 +52,13 @@
                 @endif
             @endforeach
         </div>
-        <ul class="properties-filter pt-10">
+        <!-- <ul class="properties-filter pt-10">
             <li>
                 <a class="is_active" href="#!" data-filter="*">FOR SCHEDULES</a>
             </li>
         </ul>
         <div class="row properties-box">
-            @foreach($events as $event) <!-- Loop through events -->
+            @foreach($events as $event) 
             <div class="col-lg-4 col-md-6 mb-30 properties-items">
                 <div class="item border rounded-lg shadow-lg p-4 bg-white">
                     <a href="property-details.html" class="d-block mb-3">
@@ -78,7 +78,6 @@
             @endforeach
         </div>
 
-        <!-- Show entries selection -->
         <div class="mb-3">
             <label for="perPage">Show:</label>
             <select id="perPage" onchange="updatePerPage(this.value)">
@@ -89,10 +88,9 @@
             </select>
         </div>
 
-        <!-- Pagination Links -->
         <div class="pagination">
             {{ $events->appends(['perPage' => $perPage])->links() }}
-        </div>
+        </div> -->
     </div>
 </div>
 
