@@ -24,7 +24,7 @@ class RoomController extends Controller
     public function show($id)
     {
         $room = Room::findOrFail($id);
-        $events = ApartmentRoom::where('room_id', $id)->get(); // Changed to room_id to avoid confusion
+        $events = ApartmentRoom::where('id', $id)->get();
         return view('rooms.details', compact('room', 'events')); 
     }
 
