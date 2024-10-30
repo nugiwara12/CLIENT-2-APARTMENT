@@ -13,7 +13,7 @@ class ContactController extends Controller
     // Method to show the contact form
     public function create()
     {
-        return view('nav-contents.contactus'); // Return your contact form view
+        return view('welcome'); // Return your contact form view
     }
 
     // Method to store the contact message
@@ -34,6 +34,8 @@ class ContactController extends Controller
         ]);
 
         Mail::to($request->email)->send(new ContactConfirmation());
+
+        \Log::info('Contact message sent successfully.');
 
         return redirect()->back()->with('success', 'Your message has been sent successfully!');
     }
@@ -70,7 +72,7 @@ class ContactController extends Controller
             'message' => $request->message,       
         ]);
 
-        return redirect()->route('contact.index')->with('success', 'Contact updated successfully!');
+        return redirect()->back()->with('success', 'Your message has been sent successfully!');
     }
         public function destroy($id)
     {
