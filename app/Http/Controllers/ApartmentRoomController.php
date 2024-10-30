@@ -74,7 +74,7 @@ class ApartmentRoomController extends Controller
                 'full_name' => 'required|string',
                 'contact_number' => 'required|string',
                 'email' => 'required|email',
-                'valid_id' => 'required|file|mimes:jpg,png,pdf|max:2048', // Adjust as needed
+                'valid_id' => 'required|file|mimes:jpg,png,pdf|min:1|max:91136', // Between 1KB and 89MB
                 'start_date' => 'required|date',
                 'condition_agreement' => 'required|boolean',
                 'end_date' => 'required|date|after_or_equal:start_date',
