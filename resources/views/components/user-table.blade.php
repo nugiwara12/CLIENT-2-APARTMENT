@@ -16,34 +16,32 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-400">
                     @foreach ($users as $user)
-                    <tr class="{{ $loop->even ? 'bg-gray-50' : 'bg-white' }} hover:bg-gray-200"> <!-- Added stripe effect -->
+                    <tr class="{{ $loop->even ? 'bg-gray-50' : 'bg-white' }} hover:bg-gray-200">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-black">{{ $loop->iteration }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->role }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-black text-left">
-                            <div class="dropdown">
-                                <button class="text-black" type="button"
-                                    id="dropdownMenuButton" data-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false">
-                                        <i class="bi bi-three-dots text-black text-lg"></i>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-black space-x-2">
+                        <div class="flex space-x-2">
+                            <!-- Edit Button -->
+                            <button type="button" 
+                                    class="bg-blue-600 text-white w-10 h-10 rounded-md hover:bg-blue-700 focus:outline-none flex justify-center items-center"
+                                    data-bs-toggle="modal" data-target="#editUserModal{{ $user->id }}" title="Edit">
+                                <i class="bi bi-pencil-square text-lg"></i>
+                            </button>
+
+                            <!-- Delete Form -->
+                            <form action="{{ route('usermanagement.destroy', $user->id) }}" 
+                                method="POST" class="inline-block delete-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" 
+                                        class="bg-red-600 text-white w-10 h-10 rounded-md hover:bg-red-700 focus:outline-none flex justify-center items-center" 
+                                        title="Delete">
+                                    <i class="bi bi-trash3 text-lg"></i>
                                 </button>
-                                <div class="dropdown-menu absolute left-0 w-10 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-20">
-                                    <a href="javascript:void(0)" class="block px-4 py-2 text-sm text-black hover:text-blue-600 no-italic" data-toggle="modal" data-target="#editUserModal{{ $user->id }}">
-                                        <i class="bi bi-pencil-square"></i>
-                                        Edit
-                                    </a>
-                                    <!-- Delete Form -->
-                                    <form id="deleteForm{{ $user->id }}" action="{{ route('usermanagement.destroy', $user->id) }}" method="POST" class="block delete-form" role="menuitem">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" class="block px-4 py-2 text-sm text-black hover:text-blue-600" onclick="confirmDelete('{{ $user->id }}')">
-                                            <i class="bi bi-trash"></i> 
-                                            Delete
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+                            </form>
+                        </div>    
                         </td>
                     </tr>
                     @endforeach

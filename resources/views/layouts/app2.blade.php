@@ -59,7 +59,7 @@
                             <li><a href="{{ route('booking.forms') }}" class="{{ request()->is('booking-forms') ? 'active' : '' }}">RENT APARTMENT</a></li>
                             <li><a href="{{ route('nav-contents.about_us') }}" class="{{ request()->is('nav-contents.about_us') ? 'active' : '' }}">ABOUT US</a></li>
                             <li><a href="{{ route('nav-contents.contactus') }}" class="{{ request()->is('nav-contents-contactus') ? 'active' : '' }}">CONTACT US</a></li>
-                            <li><a href="#" class="{{ request()->is('signin') ? 'active' : '' }}"><i class="bi bi-person-circle"></i>SIGN IN</a></li>
+                            <li><a href="{{ route('login') }}" class="{{ request()->is('login') ? 'active' : '' }}"><i class="bi bi-person-circle"></i>SIGN IN</a></li>
                         </ul>
 
                         <!-- Mobile Menu Trigger -->
