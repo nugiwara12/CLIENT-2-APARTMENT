@@ -21,6 +21,7 @@ class Room extends Model
         'outside_image',
         'occupied_image',
         'vacant_image',
+        'status',
     ];
     
     public function apartmentRooms()

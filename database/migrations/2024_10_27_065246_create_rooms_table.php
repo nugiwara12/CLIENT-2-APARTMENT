@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('outside_image')->nullable();
             $table->string('occupied_image')->nullable();
             $table->string('vacant_image')->nullable();
+            $table->tinyInteger('status')->default(1); 
             $table->timestamps();
         });
     }

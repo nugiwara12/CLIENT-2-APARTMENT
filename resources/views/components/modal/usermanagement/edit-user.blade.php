@@ -1,12 +1,9 @@
-<!-- resources/views/components/modal/usermanagement/edit-user.blade.php -->
 <div class="modal fade" id="editUserModal{{ $user->id }}" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title text-black" id="editUserModalLabel">Edit User</h5>
-                <button type="button" class="close text-2xl" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="editUserForm{{ $user->id }}" data-user-id="{{ $user->id }}" class="space-y-2">

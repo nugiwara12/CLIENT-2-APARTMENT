@@ -12,31 +12,31 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="no-underline hover:no-underline">
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
 
                 <!-- Navigation Links Of Usermanagement -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('usermanagement')" :active="request()->routeIs('usermanagement')">
+                    <x-nav-link :href="route('usermanagement')" :active="request()->routeIs('usermanagement')" class="no-underline hover:no-underline">
                         {{ __('Usermanagement') }}
                     </x-nav-link>
                 </div>
 
                 <!-- Navigation Links Of Booking Tenant -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('booking')" :active="request()->routeIs('booking')">
+                    <x-nav-link :href="route('booking')" :active="request()->routeIs('booking')" class="no-underline hover:no-underline">
                         {{ __('Booking') }}
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('rooms.index')" :active="request()->routeIs('rooms.index')">
+                    <x-nav-link :href="route('rooms.index')" :active="request()->routeIs('rooms.index')" class="no-underline hover:no-underline">
                         {{ __('Available Rooms') }}
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')">
+                    <x-nav-link :href="route('contact.index')" :active="request()->routeIs('contact.index')" class="no-underline hover:no-underline">
                         {{ __('Contact Us Messages') }}
                     </x-nav-link>
                 </div>

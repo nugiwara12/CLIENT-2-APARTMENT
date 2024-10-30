@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\ApartmentRoomController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\NotificationController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\AboutController;
@@ -53,29 +53,23 @@ Route::get('/send-notification', [NotificationController::class, 'sendNotificati
 Route::get('/about', [AboutController::class, 'index'])->name('nav-contents.about_us');
 
 Route::middleware(['auth'])->group(function () {
-   // Route to show the available rooms
+    // Route to show the available rooms
     Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
-
     // Route to show the create room form
     Route::get('/rooms/create', [RoomController::class, 'create'])->name('rooms.create');
-
     // Route to store a new room
     Route::post('/rooms', [RoomController::class, 'store'])->name('rooms.store');
-
     // Route to show the edit form for a room
     Route::get('/rooms/{room}/edit', [RoomController::class, 'edit'])->name('rooms.edit');
-
     // Route to update a room
     Route::put('/rooms/{room}', [RoomController::class, 'update'])->name('rooms.update');
-
     // Route to delete a room
     Route::delete('/rooms/{room}', [RoomController::class, 'destroy'])->name('rooms.destroy');
-
-    Route::get('/room/details/{id}', [RoomController::class, 'show'])->name('rooms.details');
-
+    // Add restore route here
+    Route::post('/rooms/restore/{id}', [RoomController::class, 'restore'])->name('rooms.restore');
+    // Route to show room details
+    Route::get('/rooms/details/{id}', [RoomController::class, 'show'])->name('rooms.details');
 });
-
-
 
 Route::get('/contact', [ContactController::class, 'create'])->name('nav-contents.contactus');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
