@@ -11,6 +11,7 @@
                         <th class="px-6 py-3 text-left text-xs font-normal text-black uppercase tracking-wider">Role</th>
                         <th class="px-6 py-3 text-left text-xs font-normal text-black uppercase tracking-wider">Email</th>
                         <th class="px-6 py-3 text-left text-xs font-normal text-black uppercase tracking-wider">Due Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-normal text-black uppercase tracking-wider">Message</th>
                         <th class="px-4 py-3 text-left text-xs font-normal text-black uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -27,29 +28,38 @@
                             @endif
                             {{ $user->due_date ?? 'N/A' }}
                         </td>
-                      
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->delivery_status }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">
                             <div class="flex space-x-2">
+                                <!-- Reminders Button -->
+                                <button type="button" onclick="confirmAction('{{ route('reminder.reminder', $user->id) }}', 'Reminders')" 
+                                        class="flex items-center justify-center w-10 h-10 text-white bg-gray-600 hover:bg-gray-500 rounded-full focus:outline-none" 
+                                        title="Mark as Preparing">
+                                    <i class="bi bi-chat-square-dots text-lg"></i>
+                                </button>
+
                                 <!-- Edit Button -->
                                 <button type="button" 
-                                        class="bg-blue-600 text-white w-10 h-10 rounded-md hover:bg-blue-700 focus:outline-none flex justify-center items-center"
-                                        data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}" title="Edit">
+                                        class="flex items-center justify-center w-10 h-10 text-white bg-blue-600 hover:bg-blue-700 rounded-full focus:outline-none"
+                                        data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}" 
+                                        title="Edit">
                                     <i class="bi bi-pencil-square text-lg"></i>
                                 </button>
 
                                 <!-- Set Due Date Button -->
                                 <button type="button" 
-                                        class="bg-yellow-500 text-white w-10 h-10 rounded-md hover:bg-yellow-600 focus:outline-none flex justify-center items-center"
-                                        data-bs-toggle="modal" data-bs-target="#setDueDateModal{{ $user->id }}" title="Set Due Date">
+                                        class="flex items-center justify-center w-10 h-10 text-white bg-yellow-500 hover:bg-yellow-600 rounded-full focus:outline-none" 
+                                        data-bs-toggle="modal" data-bs-target="#setDueDateModal{{ $user->id }}" 
+                                        title="Set Due Date">
                                     <i class="bi bi-calendar-event text-lg"></i>
                                 </button>
 
-                                <!-- Delete Form -->
-                                <form action="{{ route('usermanagement.destroy', $user->id) }}" method="POST" class="delete-form">
+                                <!-- Delete Button -->
+                                <form action="{{ route('usermanagement.destroy', $user->id) }}" method="POST" class="delete-form inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" 
-                                            class="bg-red-600 text-white w-10 h-10 rounded-md hover:bg-red-700 focus:outline-none flex justify-center items-center delete-button" 
+                                            class="flex items-center justify-center w-10 h-10 text-white bg-red-600 hover:bg-red-700 rounded-full focus:outline-none delete-button" 
                                             title="Delete">
                                         <i class="bi bi-trash3 text-lg"></i>
                                     </button>
@@ -57,7 +67,6 @@
                             </div>    
                         </td>
                     </tr>
-
                     <!-- Modal for Setting Due Date -->
                     <div class="modal fade" id="setDueDateModal{{ $user->id }}" tabindex="-1" aria-labelledby="setDueDateLabel{{ $user->id }}" aria-hidden="true">
                         <div class="modal-dialog">
@@ -139,4 +148,41 @@
             });
         });
     });
+
+    function confirmAction(actionUrl, actionName) {
+        Swal.fire({
+            title: `Are you sure you want to mark as ${actionName}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = actionUrl; // URL passed from the button's onclick
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}'; // Laravel CSRF token
+                form.appendChild(csrfInput);
+                document.body.appendChild(form);
+                form.submit();
+
+                // Show success message after form submission
+                Swal.fire({
+                    title: 'Success!',
+                    text: `Order marked as ${actionName} successfully.`,
+                    icon: 'success',
+                    confirmButtonColor: '#3085d6',
+                    timer: 2000, // Optional: Auto close after 2 seconds
+                    willClose: () => {
+                        // Reload the page to see the changes after success
+                        location.reload();
+                    }
+                });
+            }
+        });
+    }
 </script>

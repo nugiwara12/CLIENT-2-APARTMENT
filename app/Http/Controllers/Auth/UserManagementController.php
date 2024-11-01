@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ReminderStatusUpdated;
 use App\Rules\MatchOldPassword;
 use Auth;
 use DB;
@@ -54,6 +56,21 @@ class UserManagementController extends Controller
     
         return view('usermanagement.index', compact('users', 'pastDueCount', 'search')); // Include search in compact
     }
+
+    public function reminder(Request $request, $id) {
+        return $this->updateReminderStatus($id, 'Reminder', $request);
+    }
+
+    private function updateReminderStatus($id, $status, Request $request) {
+        $user = User::find($id);
+        $user->delivery_status = $status;
+        $user->save();
+
+        // Send email to the buyer
+        Mail::to($user->email)->send(new ReminderStatusUpdated($user));
+
+        return redirect()->back()->with('success', 'Reminder status updated to ' . $status . ' and email sent!');
+    }
     
     public function create()
     {
@@ -83,6 +100,7 @@ class UserManagementController extends Controller
 
         $user = User::findOrFail($id);
         $user->due_date = $request->due_date;
+        $user->delivery_status = 'Notices';
         $user->save();
 
         return redirect()->route('usermanagement')->with('success', 'Due date set successfully');

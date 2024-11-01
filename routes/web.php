@@ -46,8 +46,10 @@ Route::controller(UserManagementController::class)->prefix('usermanagement')->gr
     Route::put('{id}', 'update')->name('usermanagement.update');  
     Route::delete('{id}', 'destroy')->name('usermanagement.destroy');
     Route::put('/usermanagement/{id}/setDueDate', [UserManagementController::class, 'setDueDate'])->name('usermanagement.setDueDate');
-
 });
+
+Route::post('reminder/{id}/reminder', [UserManagementController::class, 'reminder'])->name('reminder.reminder');
+
 
 Route::get('/booking', [ApartmentRoomController::class, 'index'])->name('booking');
 Route::get('/booking/forms', [ApartmentRoomController::class, 'forms'])->name('booking.forms');

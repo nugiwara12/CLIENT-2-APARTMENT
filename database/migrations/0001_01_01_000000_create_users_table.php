@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('password');
             $table->date('due_date')->nullable();
             $table->boolean('is_past_due')->default(false);
+            $table->string('delivery_status')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
