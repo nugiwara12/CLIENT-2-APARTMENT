@@ -1,15 +1,11 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('All Payments') }}
-        </h2>
-    </x-slot>
-    <div class="mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
+        <h1 class="text-center font-bold text-2xl mb-4">All Payments</h1>
         @if(session('success'))
             <div id="successMessage" class="bg-green-500 text-white p-2 rounded mb-4">{{ session('success') }}</div>
         @endif
         <div class="text-right mb-4">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus"></i>Add Payment</button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus"></i>Create Payment</button>
         </div>
 
         <div class="overflow-x-auto flex justify-center">
@@ -90,6 +86,27 @@
                             <input type="text" class="form-control" name="phone_number" required>
                         </div>
                         <div class="mb-3">
+                            <label for="paymentMethod" class="form-label">Payment Method</label>
+                            <select id="paymentMethod" class="form-select" name="payment_method" required>
+                                <option value="" disabled selected>Select a payment method</option>
+                                <option value="GCASH">GCASH</option>
+                                <option value="MAYA">MAYA</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
+                            <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
+                                <option disabled>Select one or more due dates</option>
+                                @foreach($dueDates as $date)
+                                    <option value="{{ $date }}">{{ $date }}</option>
+                                @endforeach
+                                <option disabled>────── Past Due Dates ──────</option>
+                                @foreach($pastDueDates as $date)
+                                    <option value="{{ $date }}">{{ $date }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="createQRCode" class="form-label">Upload QR Code</label>
                             <input type="file" class="form-control" name="qr_code" id="createQRCode" accept="image/*" onchange="previewImage(event, 'createQRCodePreview')">
                         </div>
@@ -129,6 +146,27 @@
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <select id="editPaymentMethod" class="form-select" name="payment_method" required>
+                                <option value="GCASH" {{ $payment->payment_method == 'GCASH' ? 'selected' : '' }}>GCASH</option>
+                                <option value="MAYA" {{ $payment->payment_method == 'MAYA' ? 'selected' : '' }}>MAYA</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
+                            <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
+                                <option disabled>Select one or more due dates</option>
+                                @foreach($dueDates as $date)
+                                    <option value="{{ $date }}" {{ is_array($payment->due_dates) && in_array($date, $payment->due_dates) ? 'selected' : '' }}>{{ $date }}</option>
+                                @endforeach
+                                <option disabled>────── Past Due Dates ──────</option>
+                                @foreach($pastDueDates as $date)
+                                    <option value="{{ $date }}" {{ is_array($payment->due_dates) && in_array($date, $payment->due_dates) ? 'selected' : '' }}>{{ $date }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="form-group mb-3">
                             <label for="editQRCode">Upload New QR Code</label>
                             <input type="file" class="form-control" name="qr_code" accept="image/*" onchange="previewImage(event, 'editQRCodePreview')">
@@ -142,57 +180,15 @@
                             @endif
                         </div>
 
-                                            <div class="form-group mb-3">
-                                                <label class="form-label">New QR Code Preview:</label>
-                                                <img id="editQRCodePreview" src="" alt="New QR Code Preview" class="img-fluid" style="display: none; max-width: 100px; margin-top: 10px;">
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-primary">Update Payment</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Create Payment Modal -->
-    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <form action="{{ route('payments.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createModalLabel">Add Payment</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="createFullName" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" name="full_name" placeholder="Full Name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="createPhoneNumber" class="form-label">Phone Number</label>
-                            <input type="text" class="form-control" name="phone_number" placeholder="Phone Number" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="createQRCode" class="form-label">Upload QR Code</label>
-                            <input type="file" class="form-control" name="qr_code" id="createQRCode" accept="image/*" onchange="previewImage(event, 'createQRCodePreview')">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">QR Code Preview</label>
-                            <img id="createQRCodePreview" src="" alt="QR Code Preview" class="img-fluid" style="display: none; max-width: 100px; margin-top: 10px;">
+                        <div class="form-group mb-3">
+                            <label class="form-label">New QR Code Preview:</label>
+                            <img id="editQRCodePreview" src="" alt="New QR Code Preview" class="img-fluid" style="display: none; max-width: 100px; margin-top: 10px;">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Create Payment</button>
-                        </div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update Payment</button>
+                    </div>
                 </form>
             </div>
         </div>
