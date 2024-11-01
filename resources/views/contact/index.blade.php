@@ -29,7 +29,7 @@
             </form>
         </div>
         <div class="overflow-x-auto flex justify-center">
-            <table class="min-w-full bg-white shadow-md rounded-lg text-center">
+            <table class="min-w-full bg-white shadow-md rounded-lg">
                 <thead>
                     <tr>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Full Name</th>

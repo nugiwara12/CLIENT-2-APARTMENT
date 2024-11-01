@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('role');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->date('due_date')->nullable();
+            $table->boolean('is_past_due')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

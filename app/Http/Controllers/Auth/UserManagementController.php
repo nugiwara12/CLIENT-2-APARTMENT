@@ -20,8 +20,28 @@ class UserManagementController extends Controller
     public function index()
     {
         $users = User::all();
-        return view('usermanagement.index', compact('users'));
+
+        // Check due dates and update is_past_due status accurately
+        foreach ($users as $user) {
+            if ($user->due_date) {
+                if (Carbon::parse($user->due_date)->isToday()) {
+                    $user->is_past_due = false; // Due date is today, not past due
+                } elseif (Carbon::parse($user->due_date)->isPast()) {
+                    $user->is_past_due = true;  // Due date has passed, mark as past due
+                } else {
+                    $user->is_past_due = false; // Due date is in the future
+                }
+                $user->save();
+            }
+        }
+
+        // Count the number of users with past due dates
+        $pastDueCount = User::where('is_past_due', true)->count();
+
+        return view('usermanagement.index', compact('users', 'pastDueCount'));
     }
+
+    
 
     public function create()
     {
@@ -42,6 +62,50 @@ class UserManagementController extends Controller
  
         return redirect()->route('usermanagement')->with('success', 'UserManagement Users added successfully');
     }
+
+    public function setDueDate(Request $request, $id)
+    {
+        $request->validate([
+            'due_date' => 'nullable|date',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->due_date = $request->due_date;
+        $user->save();
+
+        return redirect()->route('usermanagement')->with('success', 'Due date set successfully');
+    }
+    public function pastDue()
+    {
+        // Get users with due dates that have passed
+        $pastDueUsers = User::whereNotNull('due_date')
+                            ->where('due_date', '<', Carbon::now())
+                            ->get();
+
+        return view('usermanagement.index', compact('pastDueUsers'));
+    }
+    public function updatePastDueStatus()
+{
+    $users = User::all();
+
+    // Check due dates and update is_past_due status accurately
+    foreach ($users as $user) {
+        if ($user->due_date) {
+            $dueDate = Carbon::parse($user->due_date);
+
+            if ($dueDate->isToday()) {
+                $user->is_past_due = false; // Due date is today, not past due
+            } elseif ($dueDate->isPast()) {
+                $user->is_past_due = true;  // Due date has passed, mark as past due
+            } else {
+                $user->is_past_due = false; // Due date is in the future
+            }
+            $user->save();
+        }
+    }
+}
+
+
 
     public function show(string $id)
     {
