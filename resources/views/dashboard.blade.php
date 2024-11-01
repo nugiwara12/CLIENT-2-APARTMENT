@@ -13,77 +13,47 @@
                     {{ __("You're logged in!") }}
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Pending Card -->
+                   <!-- Pending Card -->
                     <div class="bg-yellow-100 p-4 rounded-lg shadow">
-                        <h3 class="text-xl font-semibold">Pending</h3>
+                        <h3 class="h5 font-semibold">Pending</h3>
                         <p class="text-2xl font-bold">0</p>
-                        <button class="mt-2 text-blue-600 toggle-dates" data-target="pendingDates">Show Dates</button>
-                        <button class="mt-2 text-blue-600 show-all-dates" data-target="#pendingModal">Show All Dates</button>
-                        <ul id="pendingDates" class="mt-2 hidden">
-                            <li>2024-10-01</li>
-                            <li>2024-10-05</li>
-                            <li>2024-10-10</li>
-                        </ul>
+                        <button class="mt-2 text-blue-900 bg-yellow-200 py-2 px-4 rounded-lg show-all-dates" data-bs-toggle="modal" data-bs-target="#pendingModal">
+                            Show All Dates
+                        </button>
                     </div>
 
                     <!-- Due Date Card -->
                     <div class="bg-blue-100 p-4 rounded-lg shadow">
                         <h3 class="text-xl font-semibold">Due Date</h3>
                         <p class="text-2xl font-bold">{{ $dueTodayCount }}</p>
-                        <button class="mt-2 text-blue-600 toggle-dates" data-target="dueDate">Show Dates</button>
-                        <button class="mt-2 text-blue-600 show-all-dates" data-target="#dueModal">Show All Dates</button>
-                        <ul id="dueDate" class="mt-2 hidden">
-                            @foreach ($dueDates as $date)
-                                <li>{{ $date }}</li>
-                            @endforeach
-                        </ul>
+                        <button class="mt-2 text-blue-900 bg-blue-200 py-2 px-4 rounded-lg show-all-dates" data-bs-toggle="modal" data-bs-target="#dueModal">Show All Dates</button>
                     </div>
-
 
                     <!-- Past Due Card -->
                     <div class="bg-red-100 p-4 rounded-lg shadow">
                         <h3 class="text-xl font-semibold">Past Due</h3>
-                        <!-- Display the actual past due count from $pastDueCount -->
                         <p class="text-2xl font-bold">{{ $pastDueCount }}</p>
-                        
-                        <!-- Toggle to show past due dates -->
-                        <button class="mt-2 text-blue-600 toggle-dates" data-target="pastDue">Show Dates</button>
-                        <button class="mt-2 text-blue-600 show-all-dates" data-target="#pastDueModal">Show All Dates</button>
-                        
-                        <!-- List past due dates -->
-                        <ul id="pastDue" class="mt-2 hidden">
-                            @foreach($pastDueDates as $date)
-                                <li>{{ $date }}</li>
-                            @endforeach
-                        </ul>
+                        <button class="mt-2 text-blue-900 bg-red-200 py-2 px-4 rounded-lg show-all-dates" data-bs-toggle="modal" data-bs-target="#pastDueModal">Show All Dates</button>
                     </div>
 
                     <!-- Paid Card -->
                     <div class="bg-green-100 p-4 rounded-lg shadow">
                         <h3 class="text-xl font-semibold">Total Payments</h3>
                         <p class="text-2xl font-bold">{{ $paymentCount }}</p> <!-- Ensure this is here -->
-                        
-                        <button class="mt-2 text-blue-600 toggle-dates" data-target="paidDates">Show Dates</button>
-                        <button class="mt-2 text-blue-600 show-all-dates" data-target="#paidModal">Show All Dates</button>
-                        
-                        <ul id="paidDates" class="mt-2 hidden">
-                            @foreach ($paymentDates as $date)
-                                <li>{{ $date }}</li>
-                            @endforeach
-                        </ul>
+                        <button class="mt-2 text-blue-900 bg-green-300 py-2 px-4 rounded-lg show-all-dates" data-bs-toggle="modal" data-bs-target="#paidModal">Show All Dates</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modals for all dates -->
-    <div class="modal" id="pendingModal" style="display: none;">
-        <div class="modal-dialog">
+    <!-- All Pending Dates -->
+    <div class="modal fade" id="pendingModal" tabindex="-1" aria-labelledby="pendingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">All Pending Dates</h5>
-                    <button type="button" class="close-button" aria-label="Close">&times;</button>
+                    <h5 class="modal-title" id="pendingModalLabel">All Pending Dates</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <ul>
@@ -95,51 +65,53 @@
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="close-button">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal" id="dueModal" style="display: none;">
-        <div class="modal-dialog">
+    <!-- All Due Dates -->
+    <div class="modal fade" id="dueModal" tabindex="-1" aria-labelledby="dueModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">All Due Dates</h5>
-                    <p class="text-2xl font-bold">{{$dueTodayCount}}</p>
-                    <button type="button" class="close-button" aria-label="Close">&times;</button>
+                    <h5 class="modal-title" id="dueModalLabel">All Due Dates</h5>
+                    <p class="h4 mb-0">{{$dueTodayCount}}</p> <!-- Display the due today count -->
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <ul>
                         @foreach ($dueDates as $date)
-                            <li>{{ $date }}</li>
+                            <li>{{ \Carbon\Carbon::parse($date)->format('F j, Y') }}</li>
                         @endforeach
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="close-button">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal" id="pastDueModal" style="display: none;">
-        <div class="modal-dialog">
+    <!-- All Past Due Dates -->
+    <div class="modal fade" id="pastDueModal" tabindex="-1" aria-labelledby="pastDueModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">All Past Due Dates</h5>
-                    <p class="text-2xl font-bold">{{$pastDueCount}}</p>
-                    <button type="button" class="close-button" aria-label="Close">&times;</button>
+                    <h5 class="modal-title" id="pastDueModalLabel">All Past Due Dates</h5>
+                    <p class="h4 mb-0">{{ $pastDueCount }}</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <ul>
                         @foreach($pastDueDates as $date)
-                            <li>{{ $date }}</li>
+                            <li>{{ \Carbon\Carbon::parse($date)->format('F j, Y') }}</li>
                         @endforeach
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="close-button">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -147,22 +119,22 @@
 
 
     <!-- Paid Modal for all dates -->
-    <div class="modal" id="paidModal" style="display: none;">
-        <div class="modal-dialog">
+    <div class="modal fade" id="paidModal" tabindex="-1" aria-labelledby="paidModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">All Paid Dates</h5>
-                    <button type="button" class="close-button" aria-label="Close">&times;</button>
+                    <h5 class="modal-title" id="paidModalLabel">All Paid Dates</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <ul>
                         @foreach ($paymentDates as $date)
-                            <li>{{ $date }}</li>
+                            <li>{{ \Carbon\Carbon::parse($date)->format('F j, Y') }}</li>
                         @endforeach
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="close-button">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -311,57 +283,4 @@
             </div>
         </div>
     </div>
-
-
-
-
-
-    <!-- Add this script to handle the message visibility and toggle dropdowns -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var message = document.getElementById('login-message');
-            setTimeout(function () {
-                message.style.display = 'none';
-            }, 5000);
-
-            // Toggle date list visibility
-            const toggleButtons = document.querySelectorAll('.toggle-dates');
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const targetId = this.getAttribute('data-target');
-                    const targetList = document.getElementById(targetId);
-                    targetList.classList.toggle('hidden'); // Toggle the hidden class
-                });
-            });
-
-            // Show modal when clicking on "Show All Dates"
-            const showAllDateButtons = document.querySelectorAll('.show-all-dates');
-            showAllDateButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const modalId = this.getAttribute('data-target');
-                    const modal = document.querySelector(modalId);
-                    modal.style.display = 'block'; // Show modal
-                });
-            });
-
-            // Close modal functionality
-            const closeButtons = document.querySelectorAll('.close-button');
-            closeButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const modal = this.closest('.modal');
-                    modal.style.display = 'none'; // Hide modal
-                });
-            });
-
-            // Close modal when clicking outside the modal content
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(modal => {
-                modal.addEventListener('click', function (e) {
-                    if (e.target === modal) {
-                        modal.style.display = 'none'; // Hide modal
-                    }
-                });
-            });
-        });
-    </script>
 </x-app-layout>
