@@ -13,6 +13,8 @@ class CreatePaymentsTable extends Migration
             $table->string('full_name');
             $table->string('phone_number');
             $table->string('qr_code');
+            $table->string('payment_method'); // New field for payment method
+            $table->json('due_date'); // To store multiple due dates as JSON
             $table->timestamps();
         });
     }

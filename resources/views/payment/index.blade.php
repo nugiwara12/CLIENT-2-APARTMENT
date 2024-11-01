@@ -18,6 +18,8 @@
                     <tr>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Full Name</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Phone Number</th>
+                        <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Payment Method</th>
+                        <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Due Date</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">QR Code</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -27,6 +29,19 @@
                         <tr class="hover:bg-gray-1000">
                             <td class="px-6 py-4 border-b border-gray-300">{{ $payment->full_name }}</td>
                             <td class="px-6 py-4 border-b border-gray-300">{{ $payment->phone_number }}</td>
+                            <td class="px-6 py-4 border-b border-gray-300">{{ $payment->payment_method }}</td>
+                            <td class="px-6 py-4 border-b border-gray-300">
+                                @php
+                                    $dueDates = json_decode($payment->due_date, true); // Decode the JSON string
+                                @endphp
+
+                                @if($dueDates && is_array($dueDates))
+                                    {{ implode(', ', $dueDates) }}
+                                @else
+                                    No due dates set
+                                @endif
+                            </td>
+
                             <td class="px-6 py-4 border-b border-gray-300">
                                 <img src="{{ asset('storage/' . $payment->qr_code) }}" alt="QR Code" class="h-10">
                             </td>
@@ -36,6 +51,8 @@
                                         data-bs-toggle="modal" data-bs-target="#editModal"
                                         data-full-name="{{ $payment->full_name }}"
                                         data-phone-number="{{ $payment->phone_number }}"
+                                        data-payment-method="{{ $payment->payment_method }}"
+                                        data-due-dates="{{ is_array(json_decode($payment->due_date)) ? implode(',', json_decode($payment->due_date)) : '' }}"
                                         data-qr-code="{{ asset('storage/' . $payment->qr_code) }}"
                                         data-payment-id="{{ $payment->id }}">
                                         <i class="bi bi-pencil-square"></i>
@@ -47,40 +64,83 @@
                                 </form>
                             </td>
                         </tr>
-                        <!-- Edit Modal -->
-                        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <form id="editForm" method="POST" enctype="multipart/form-data" action="{{ route('payments.update', $payment) }}">
-                                        @csrf
-                                        @method('PUT')
-                                        <div class="modal-body overflow-auto max-h-96 overflow-y-auto">
-                                            <div class="form-group mb-3">
-                                                <label for="editFullName">Full Name</label>
-                                                <input type="text" class="form-control" name="full_name" value="{{ old('full_name', $payment->full_name) }}" required>
-                                                @error('full_name')
-                                                    <div class="text-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="editPhoneNumber">Phone Number</label>
-                                                <input type="text" class="form-control" name="phone_number" value="{{ old('phone_number', $payment->phone_number) }}" required>
-                                                @error('phone_number')
-                                                    <div class="text-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label for="editQRCode">Upload New QR Code</label>
-                                                <input type="file" class="form-control" name="qr_code" accept="image/*" onchange="previewImage(event, 'editQRCodePreview')">
-                                            </div>
-                                            <div class="form-group mb-3">
-                                                <label class="form-label">Current QR Code:</label>
-                                                @if ($payment->qr_code)
-                                                    <img src="{{ asset('storage/' . $payment->qr_code) }}" alt="Current QR Code" class="img-fluid mt-2" style="max-height: 150px;">
-                                                @else
-                                                    <p>No QR code uploaded.</p>
-                                                @endif
-                                            </div>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Create Payment Modal -->
+    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{{ route('payments.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createModalLabel">Create Payment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="createFullName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="full_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createPhoneNumber" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" name="phone_number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createQRCode" class="form-label">Upload QR Code</label>
+                            <input type="file" class="form-control" name="qr_code" id="createQRCode" accept="image/*" onchange="previewImage(event, 'createQRCodePreview')">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">QR Code Preview</label>
+                            <img id="createQRCodePreview" src="" alt="QR Code Preview" class="img-fluid" style="display: none; max-width: 100px; margin-top: 10px;">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Create Payment</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="editForm" method="POST" enctype="multipart/form-data" action="{{ route('payments.update', $payment) }}">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body overflow-auto max-h-96 overflow-y-auto">
+                        <div class="form-group mb-3">
+                            <label for="editFullName">Full Name</label>
+                            <input type="text" class="form-control" name="full_name" value="{{ old('full_name', $payment->full_name) }}" required>
+                            @error('full_name')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="editPhoneNumber">Phone Number</label>
+                            <input type="text" class="form-control" name="phone_number" value="{{ old('phone_number', $payment->phone_number) }}" required>
+                            @error('phone_number')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="editQRCode">Upload New QR Code</label>
+                            <input type="file" class="form-control" name="qr_code" accept="image/*" onchange="previewImage(event, 'editQRCodePreview')">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Current QR Code:</label>
+                            @if ($payment->qr_code)
+                                <img src="{{ asset('storage/' . $payment->qr_code) }}" alt="Current QR Code" class="img-fluid mt-2" style="max-height: 150px;">
+                            @else
+                                <p>No QR code uploaded.</p>
+                            @endif
+                        </div>
 
                                             <div class="form-group mb-3">
                                                 <label class="form-label">New QR Code Preview:</label>
