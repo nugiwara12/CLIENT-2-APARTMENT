@@ -12,48 +12,43 @@ use App\Http\Controllers\Auth\UserManagementController;
 class PaymentController extends Controller
 {
     // Display all payments
-    public function index()
+    public function index(Request $request)
     {
-        // Get all payments
-        $payments = Payment::all();
-        // Update the past due status of users
+        $perPage = $request->input('per_page', 10); // Default to 10 entries per page if not specified
+        $search = $request->input('search'); // Retrieve the search query
+
+        // Query payments and apply search filter
+        $payments = Payment::when($search, function ($query, $search) {
+                return $query->where('full_name', 'like', "%{$search}%")
+                            ->orWhere('phone_number', 'like', "%{$search}%")
+                            ->orWhere('payment_method', 'like', "%{$search}%");
+            })
+            ->paginate($perPage);
+
+        // Existing code for past due status and other counts remains as it is
         $userManagement = new UserManagementController();
         $userManagement->updatePastDueStatus();
 
-        // Count the total number of payments
-        $paymentCount = $payments->count();
+        $paymentCount = Payment::count();
+        $paymentDates = Payment::pluck('created_at')->map(fn($date) => $date->format('Y-m-d'));
 
-        // Get the dates of the payments
-        $paymentDates = $payments->pluck('created_at')->map(function($date) {
-            return $date->format('Y-m-d'); // Format the date as needed
-        });
-         // Retrieve the count of users with due dates set for today
-         $today = Carbon::today();
-         $dueTodayCount = User::whereDate('due_date', $today)->count();
- 
-         // Retrieve all upcoming due dates, including today
-         $dueDates = User::whereDate('due_date', '>=', $today)
-                         ->orderBy('due_date')
-                         ->pluck('due_date')
-                         ->map(function ($date) {
-                             return Carbon::parse($date)->format('Y-m-d');
-                         });
- 
-         // Fetch only the past due dates
-         $pastDueDates = User::where('is_past_due', true)
-             ->orderByDesc('due_date')
-             ->pluck('due_date')
-             ->map(function ($date) {
-                 return Carbon::parse($date)->format('Y-m-d');
-             });
- 
-         // Count of past due dates
-         $pastDueCount = $pastDueDates->count();
+        $today = Carbon::today();
+        $dueTodayCount = User::whereDate('due_date', $today)->count();
+        $dueDates = User::whereDate('due_date', '>=', $today)
+                        ->orderBy('due_date')
+                        ->pluck('due_date')
+                        ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'));
 
-        // Return the view with the necessary data
-        return view('payment.index', compact('payments', 'paymentCount', 'paymentDates','dueTodayCount', 'dueDates', 'pastDueDates', 'pastDueCount'));
+        $pastDueDates = User::where('is_past_due', true)
+                            ->orderByDesc('due_date')
+                            ->pluck('due_date')
+                            ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'));
+
+        $pastDueCount = $pastDueDates->count();
+
+        // Return view with existing data plus new pagination data and search query
+        return view('payment.index', compact('payments', 'paymentCount', 'paymentDates', 'dueTodayCount', 'dueDates', 'pastDueDates', 'pastDueCount', 'perPage', 'search'));
     }
-    
 
     // Show the form for creating a new payment
     public function create()

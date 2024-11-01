@@ -8,8 +8,30 @@
         @if(session('success'))
             <div id="successMessage" class="bg-green-500 text-white p-2 rounded mb-4">{{ session('success') }}</div>
         @endif
-        <div class="text-right mb-4">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus"></i>Add Payment</button>
+        <div class="text-right mb-1">
+            <div class="mr-4">
+                <form method="GET" action="{{ route('payments.index') }}" class="relative justify-between flex items-center space-x-2 py-2">
+                    <!-- Search Input -->
+                    <div class="relative flex items-center w-full max-w-md">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="bi bi-search text-gray-500"></i>
+                        </div>
+                        <input type="text" id="search" name="search" value="{{ request('search') }}"
+                            class="block w-70 pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm transition duration-150 ease-in-out hover:border-blue-400"
+                            placeholder="SEARCH" oninput="toggleResetButton()" />
+
+                        <!-- Reset Button Inside Input -->
+                        <a href="{{ route('payments.index') }}" id="reset-button" class="absolute inset-y-0 right-52 flex items-center pr-3 text-gray-500 hover:text-blue-500 hidden">
+                            <i class="bi bi-x-circle"></i>
+                        </a>
+                    </div>
+
+                    <button type="button" class="btn btn-primary whitespace-nowrap" data-toggle="modal" data-target="#createModal">
+                        <i class="bi bi-plus"></i> Add Payment
+                    </button>
+                    <!-- <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus"></i>Add Payment</button> -->
+                </form>
+            </div>
         </div>
 
         <div class="overflow-x-auto flex justify-center">
@@ -81,7 +103,7 @@
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label for="editPhoneNumber">Phone Number</label>
-                                                <input type="text" class="form-control" name="phone_number" value="{{ old('phone_number', $payment->phone_number) }}" required>
+                                                <input type="text" class="form-control" name="phone_number" value="{{ old('phone_number', $payment->phone_number) }}"   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,11)" required>
                                                 @error('phone_number')
                                                     <div class="text-danger">{{ $message }}</div>
                                                 @enderror
@@ -137,6 +159,25 @@
                 </tbody>
             </table>
         </div>
+        <!-- Pagination Section -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-4 px-4">
+            <div class="flex items-center mb-2 md:mb-0">
+                <form method="GET" action="{{ route('payments.index') }}" class="flex items-center">
+                    <label for="per_page" class="mr-2 text-sm mt-2">Show</label>
+                    <select name="per_page" id="per_page" class="border border-gray-300 rounded px-4 py-1 text-sm" onchange="this.form.submit()">
+                        <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
+                        <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                </form>
+                <span class="text-sm ml-2">of <strong>{{ $payments->total() }}</strong> entries</span>
+            </div>
+
+            <div class="md:mt-0">
+                <x-payment-pagination :payments="$payments" />
+            </div>
+        </div>
     </div>
 
     <!-- Create Payment Modal -->
@@ -152,11 +193,11 @@
                     <div class="modal-body overflow-auto max-h-96 overflow-y-auto">
                         <div class="mb-3">
                             <label for="createFullName" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" name="full_name" required>
+                            <input type="text" class="form-control" name="full_name" placeholder="Enter full name" required>
                         </div>
                         <div class="mb-3">
                             <label for="createPhoneNumber" class="form-label">Phone Number</label>
-                            <input type="text" class="form-control" name="phone_number" required>
+                            <input type="text" class="form-control" name="phone_number" placeholder="Enter phone number"  oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,11)" required>
                         </div>
                         <div class="mb-3">
                             <label for="paymentMethod" class="form-label">Payment Method</label>
@@ -228,5 +269,16 @@
             }, 3000); // 3 seconds
         }
     };
+
+    function toggleResetButton() {
+        const searchInput = document.getElementById('search');
+        const resetButton = document.getElementById('reset-button');
+
+        if (searchInput.value) {
+            resetButton.classList.remove('hidden'); // Show the reset button
+        } else {
+            resetButton.classList.add('hidden'); // Hide the reset button
+        }
+    }
 
 </script>
