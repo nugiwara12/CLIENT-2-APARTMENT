@@ -14,20 +14,46 @@ class PaymentController extends Controller
     // Display all payments
     public function index()
     {
-        // Retrieve all payments from the database
+        // Get all payments
         $payments = Payment::all();
+        // Update the past due status of users
+        $userManagement = new UserManagementController();
+        $userManagement->updatePastDueStatus();
 
         // Count the total number of payments
         $paymentCount = $payments->count();
-    
-        // Get the dates of the payments for additional data
+
+        // Get the dates of the payments
         $paymentDates = $payments->pluck('created_at')->map(function($date) {
-            return $date->format('Y-m-d');
+            return $date->format('Y-m-d'); // Format the date as needed
         });
+         // Retrieve the count of users with due dates set for today
+         $today = Carbon::today();
+         $dueTodayCount = User::whereDate('due_date', $today)->count();
+ 
+         // Retrieve all upcoming due dates, including today
+         $dueDates = User::whereDate('due_date', '>=', $today)
+                         ->orderBy('due_date')
+                         ->pluck('due_date')
+                         ->map(function ($date) {
+                             return Carbon::parse($date)->format('Y-m-d');
+                         });
+ 
+         // Fetch only the past due dates
+         $pastDueDates = User::where('is_past_due', true)
+             ->orderByDesc('due_date')
+             ->pluck('due_date')
+             ->map(function ($date) {
+                 return Carbon::parse($date)->format('Y-m-d');
+             });
+ 
+         // Count of past due dates
+         $pastDueCount = $pastDueDates->count();
 
         // Return the view with the necessary data
-        return view('payment.index', compact('payments', 'paymentCount', 'paymentDates'));
+        return view('payment.index', compact('payments', 'paymentCount', 'paymentDates','dueTodayCount', 'dueDates', 'pastDueDates', 'pastDueCount'));
     }
+    
 
     // Show the form for creating a new payment
     public function create()

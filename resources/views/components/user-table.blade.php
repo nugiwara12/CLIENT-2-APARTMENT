@@ -1,7 +1,6 @@
 <div class="w-full">
     <!-- Success Message -->
     <x-modal.usermanagement.add-user />
-
     <div class="min-h-full">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-400">
@@ -22,10 +21,13 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->role }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->due_date ?? 'N/A' }}</td>
-                        @if ($user->is_past_due)
-                            <span class="text-red-500">Past Due</span>
-                        @endif
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-black">
+                            @if ($user->is_past_due)
+                                <span class="text-red-500">"Past Due"</span>
+                            @endif
+                            {{ $user->due_date ?? 'N/A' }}
+                        </td>
+                      
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">
                             <div class="flex space-x-2">
                                 <!-- Edit Button -->

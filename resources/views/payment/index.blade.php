@@ -1,11 +1,15 @@
 <x-app-layout>
-    <div class="container mx-auto px-4 py-6">
-        <h1 class="text-center font-bold text-2xl mb-4">All Payments</h1>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('All Payments') }}
+        </h2>
+    </x-slot>
+    <div class="mx-auto px-4 py-6">
         @if(session('success'))
             <div id="successMessage" class="bg-green-500 text-white p-2 rounded mb-4">{{ session('success') }}</div>
         @endif
         <div class="text-right mb-4">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus"></i>Create Payment</button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus"></i>Add Payment</button>
         </div>
 
         <div class="overflow-x-auto flex justify-center">
@@ -16,7 +20,7 @@
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Phone Number</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Payment Method</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Due Date</th>
-                        <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">QR Code</th>
+                        <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Proof of Billing</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -39,7 +43,7 @@
                             </td>
 
                             <td class="px-6 py-4 border-b border-gray-300">
-                                <img src="{{ asset('storage/' . $payment->qr_code) }}" alt="QR Code" class="h-10">
+                                <img src="{{ asset('storage/' . $payment->qr_code) }}" alt="Proof of Billing" class="h-10">
                             </td>
                             <td class="py-3 px-6 flex space-x-2 justify-center items-center">
                                 <!-- Button triggers for edit modal -->
@@ -60,6 +64,75 @@
                                 </form>
                             </td>
                         </tr>
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <form id="editForm" method="POST" enctype="multipart/form-data" action="{{ route('payments.update', $payment) }}">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="modal-body overflow-auto max-h-96 overflow-y-auto">
+                                            <div class="form-group mb-3">
+                                                <label for="editFullName">Full Name</label>
+                                                <input type="text" class="form-control" name="full_name" value="{{ old('full_name', $payment->full_name) }}" required>
+                                                @error('full_name')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="editPhoneNumber">Phone Number</label>
+                                                <input type="text" class="form-control" name="phone_number" value="{{ old('phone_number', $payment->phone_number) }}" required>
+                                                @error('phone_number')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Payment Method</label>
+                                                <select id="editPaymentMethod" class="form-select" name="payment_method" required>
+                                                    <option value="GCASH" {{ $payment->payment_method == 'GCASH' ? 'selected' : '' }}>GCASH</option>
+                                                    <option value="MAYA" {{ $payment->payment_method == 'MAYA' ? 'selected' : '' }}>MAYA</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
+                                                <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
+                                                    <option disabled>Select one or more due dates</option>
+                                                    @foreach($dueDates as $date)
+                                                        <option value="{{ $date }}" {{ is_array($payment->due_dates) && in_array($date, $payment->due_dates) ? 'selected' : '' }}>{{ $date }}</option>
+                                                    @endforeach
+                                                    <option disabled>────── Past Due Dates ──────</option>
+                                                    @foreach($pastDueDates as $date)
+                                                        <option value="{{ $date }}" {{ is_array($payment->due_dates) && in_array($date, $payment->due_dates) ? 'selected' : '' }}>{{ $date }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label for="editQRCode">Upload New Proof of Billing</label>
+                                                <input type="file" class="form-control" name="qr_code" accept="image/*" onchange="previewImage(event, 'editQRCodePreview')">
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Current Proof of Billing:</label>
+                                                @if ($payment->qr_code)
+                                                    <img src="{{ asset('storage/' . $payment->qr_code) }}" alt="Proof of Billing" class="img-fluid mt-2" style="max-height: 150px;">
+                                                @else
+                                                    <p>No Proof of Billing uploaded.</p>
+                                                @endif
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">New Proof of Billing Preview:</label>
+                                                <img id="editQRCodePreview" src="" alt="New Proof of Billing Preview" class="img-fluid" style="display: none; max-width: 100px; margin-top: 10px;">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Update Payment</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     @endforeach
                 </tbody>
             </table>
@@ -68,15 +141,15 @@
 
     <!-- Create Payment Modal -->
     <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <form action="{{ route('payments.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-header">
-                        <h5 class="modal-title" id="createModalLabel">Create Payment</h5>
+                        <h5 class="modal-title" id="createModalLabel">Add Payment</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body overflow-auto max-h-96 overflow-y-auto">
                         <div class="mb-3">
                             <label for="createFullName" class="form-label">Full Name</label>
                             <input type="text" class="form-control" name="full_name" required>
@@ -107,87 +180,17 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="createQRCode" class="form-label">Upload QR Code</label>
+                            <label for="createQRCode" class="form-label">Upload Proof of Billing</label>
                             <input type="file" class="form-control" name="qr_code" id="createQRCode" accept="image/*" onchange="previewImage(event, 'createQRCodePreview')">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">QR Code Preview</label>
-                            <img id="createQRCodePreview" src="" alt="QR Code Preview" class="img-fluid" style="display: none; max-width: 100px; margin-top: 10px;">
+                        <label class="form-label">New Proof of Billing Preview:</label>
+                        <img id="createQRCodePreview" src="" alt="Proof of Billing Preview" class="img-fluid" style="display: none; max-width: 100px; margin-top: 10px;">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Create Payment</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Modal -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="editForm" method="POST" enctype="multipart/form-data" action="{{ route('payments.update', $payment) }}">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-body overflow-auto max-h-96 overflow-y-auto">
-                        <div class="form-group mb-3">
-                            <label for="editFullName">Full Name</label>
-                            <input type="text" class="form-control" name="full_name" value="{{ old('full_name', $payment->full_name) }}" required>
-                            @error('full_name')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="editPhoneNumber">Phone Number</label>
-                            <input type="text" class="form-control" name="phone_number" value="{{ old('phone_number', $payment->phone_number) }}" required>
-                            @error('phone_number')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Payment Method</label>
-                            <select id="editPaymentMethod" class="form-select" name="payment_method" required>
-                                <option value="GCASH" {{ $payment->payment_method == 'GCASH' ? 'selected' : '' }}>GCASH</option>
-                                <option value="MAYA" {{ $payment->payment_method == 'MAYA' ? 'selected' : '' }}>MAYA</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
-                            <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
-                                <option disabled>Select one or more due dates</option>
-                                @foreach($dueDates as $date)
-                                    <option value="{{ $date }}" {{ is_array($payment->due_dates) && in_array($date, $payment->due_dates) ? 'selected' : '' }}>{{ $date }}</option>
-                                @endforeach
-                                <option disabled>────── Past Due Dates ──────</option>
-                                @foreach($pastDueDates as $date)
-                                    <option value="{{ $date }}" {{ is_array($payment->due_dates) && in_array($date, $payment->due_dates) ? 'selected' : '' }}>{{ $date }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="editQRCode">Upload New QR Code</label>
-                            <input type="file" class="form-control" name="qr_code" accept="image/*" onchange="previewImage(event, 'editQRCodePreview')">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Current QR Code:</label>
-                            @if ($payment->qr_code)
-                                <img src="{{ asset('storage/' . $payment->qr_code) }}" alt="Current QR Code" class="img-fluid mt-2" style="max-height: 150px;">
-                            @else
-                                <p>No QR code uploaded.</p>
-                            @endif
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label class="form-label">New QR Code Preview:</label>
-                            <img id="editQRCodePreview" src="" alt="New QR Code Preview" class="img-fluid" style="display: none; max-width: 100px; margin-top: 10px;">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Update Payment</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
                 </form>
             </div>
