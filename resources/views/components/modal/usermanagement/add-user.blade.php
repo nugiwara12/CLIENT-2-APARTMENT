@@ -1,14 +1,29 @@
-<div class="px-2 border-b bg-gray-50 rounded-lg">
-    <div class="flex justify-between items-center">
-        <h3 class="text-lg font-bold">Add Users</h3>
-        <div class="flex justify-end mb-2">
-            <!-- Button to open the Add Users modal -->
-            <button class="bg-blue-800 p-2 rounded-md text-white hover:text-white" id="openAddModalButton">
-                <i class="bi bi-person-plus"></i> Add Users
-            </button>
+<div class="flex justify-between items-center border-b mb-1">
+    <!-- Search Form -->
+    <form method="GET" action="{{ route('usermanagement') }}" class="relative flex items-center w-full max-w-md">
+        <div class="relative flex items-center w-full">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <i class="bi bi-search text-gray-500"></i>
+            </div>
+            <input type="text" id="search" name="search" value="{{ request('search') }}"
+                class="block w-70 pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm transition duration-150 ease-in-out hover:border-blue-400"
+                placeholder="SEARCH" oninput="toggleResetButton()" />
+
+            <!-- Reset Button Inside Input -->
+            <a href="{{ route('usermanagement') }}" id="reset-button" class="absolute inset-y-0 right-52 flex items-center pr-3 text-gray-500 hover:text-blue-500 {{ request('search') ? '' : 'hidden' }}">
+                <i class="bi bi-x-circle"></i>
+            </a>
         </div>
+    </form>
+
+    <!-- Add Users Button -->
+    <div class="flex justify-end">
+        <button class="bg-blue-800 p-2 rounded-md text-white hover:text-white" id="openAddModalButton">
+            <i class="bi bi-person-plus"></i> Add Users
+        </button>
     </div>
 </div>
+
 
 <!-- Add Users Modal -->
 <div id="addModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex justify-center items-center transition-opacity duration-300">
@@ -167,6 +182,17 @@ function closeModal() {
     setTimeout(() => {
         modal.classList.add('hidden');
     }, 300); // match the duration of the opacity transition
+}
+
+function toggleResetButton() {
+    const searchInput = document.getElementById('search');
+    const resetButton = document.getElementById('reset-button');
+
+    if (searchInput.value) {
+        resetButton.classList.remove('hidden'); // Show the reset button
+    } else {
+        resetButton.classList.add('hidden'); // Hide the reset button
+    }
 }
 </script>
 @endsection

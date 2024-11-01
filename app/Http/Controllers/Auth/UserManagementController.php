@@ -17,10 +17,24 @@ use Hash;
 
 class UserManagementController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
-
+        $perPage = $request->input('per_page', 10); // Default to 10 entries per page if not specified
+        $search = $request->input('search'); // Get the search input
+    
+        // Query to filter users based on search input
+        $query = User::query();
+        
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('role', 'LIKE', "%{$search}%");
+            });
+        }
+    
+        $users = $query->paginate($perPage); // Use pagination instead of fetching all users
+    
         // Check due dates and update is_past_due status accurately
         foreach ($users as $user) {
             if ($user->due_date) {
@@ -34,15 +48,13 @@ class UserManagementController extends Controller
                 $user->save();
             }
         }
-
+    
         // Count the number of users with past due dates
         $pastDueCount = User::where('is_past_due', true)->count();
-
-        return view('usermanagement.index', compact('users', 'pastDueCount'));
-    }
-
     
-
+        return view('usermanagement.index', compact('users', 'pastDueCount', 'search')); // Include search in compact
+    }
+    
     public function create()
     {
         return view('usermanagement.create');
