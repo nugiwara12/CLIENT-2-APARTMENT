@@ -63,7 +63,7 @@ class UserManagementController extends Controller
 
     private function updateReminderStatus($id, $status, Request $request) {
         $user = User::find($id);
-        $user->delivery_status = $status;
+        $user->reminder_status = $status;
         $user->save();
 
         // Send email to the buyer
@@ -100,7 +100,7 @@ class UserManagementController extends Controller
 
         $user = User::findOrFail($id);
         $user->due_date = $request->due_date;
-        $user->delivery_status = 'Notices';
+        $user->reminder_status = 'Notices';
         $user->save();
 
         return redirect()->route('usermanagement')->with('success', 'Due date set successfully');
