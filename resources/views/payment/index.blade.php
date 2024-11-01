@@ -1,11 +1,15 @@
 <x-app-layout>
-    <div class="container mx-auto px-4 py-6">
-        <h1 class="text-center font-bold text-2xl mb-4">All Payments</h1>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('All Payments') }}
+        </h2>
+    </x-slot>
+    <div class="mx-auto px-4 py-6">
         @if(session('success'))
             <div id="successMessage" class="bg-green-500 text-white p-2 rounded mb-4">{{ session('success') }}</div>
         @endif
         <div class="text-right mb-4">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus"></i>Create Payment</button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus"></i>Add Payment</button>
         </div>
 
         <div class="overflow-x-auto flex justify-center">
@@ -43,6 +47,54 @@
                                 </form>
                             </td>
                         </tr>
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form id="editForm" method="POST" enctype="multipart/form-data" action="{{ route('payments.update', $payment) }}">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="modal-body overflow-auto max-h-96 overflow-y-auto">
+                                            <div class="form-group mb-3">
+                                                <label for="editFullName">Full Name</label>
+                                                <input type="text" class="form-control" name="full_name" value="{{ old('full_name', $payment->full_name) }}" required>
+                                                @error('full_name')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="editPhoneNumber">Phone Number</label>
+                                                <input type="text" class="form-control" name="phone_number" value="{{ old('phone_number', $payment->phone_number) }}" required>
+                                                @error('phone_number')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="editQRCode">Upload New QR Code</label>
+                                                <input type="file" class="form-control" name="qr_code" accept="image/*" onchange="previewImage(event, 'editQRCodePreview')">
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Current QR Code:</label>
+                                                @if ($payment->qr_code)
+                                                    <img src="{{ asset('storage/' . $payment->qr_code) }}" alt="Current QR Code" class="img-fluid mt-2" style="max-height: 150px;">
+                                                @else
+                                                    <p>No QR code uploaded.</p>
+                                                @endif
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">New QR Code Preview:</label>
+                                                <img id="editQRCodePreview" src="" alt="New QR Code Preview" class="img-fluid" style="display: none; max-width: 100px; margin-top: 10px;">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Update Payment</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     @endforeach
                 </tbody>
             </table>
@@ -51,22 +103,22 @@
 
     <!-- Create Payment Modal -->
     <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <form action="{{ route('payments.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-header">
-                        <h5 class="modal-title" id="createModalLabel">Create Payment</h5>
+                        <h5 class="modal-title" id="createModalLabel">Add Payment</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="createFullName" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" name="full_name" required>
+                            <input type="text" class="form-control" name="full_name" placeholder="Full Name" required>
                         </div>
                         <div class="mb-3">
                             <label for="createPhoneNumber" class="form-label">Phone Number</label>
-                            <input type="text" class="form-control" name="phone_number" required>
+                            <input type="text" class="form-control" name="phone_number" placeholder="Phone Number" required>
                         </div>
                         <div class="mb-3">
                             <label for="createQRCode" class="form-label">Upload QR Code</label>
@@ -78,58 +130,9 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Create Payment</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Create Payment</button>
                         </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Modal -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="editForm" method="POST" enctype="multipart/form-data" action="{{ route('payments.update', $payment) }}">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-body overflow-auto max-h-96 overflow-y-auto">
-                        <div class="form-group mb-3">
-                            <label for="editFullName">Full Name</label>
-                            <input type="text" class="form-control" name="full_name" value="{{ old('full_name', $payment->full_name) }}" required>
-                            @error('full_name')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="editPhoneNumber">Phone Number</label>
-                            <input type="text" class="form-control" name="phone_number" value="{{ old('phone_number', $payment->phone_number) }}" required>
-                            @error('phone_number')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="editQRCode">Upload New QR Code</label>
-                            <input type="file" class="form-control" name="qr_code" accept="image/*" onchange="previewImage(event, 'editQRCodePreview')">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Current QR Code:</label>
-                            @if ($payment->qr_code)
-                                <img src="{{ asset('storage/' . $payment->qr_code) }}" alt="Current QR Code" class="img-fluid mt-2" style="max-height: 150px;">
-                            @else
-                                <p>No QR code uploaded.</p>
-                            @endif
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label class="form-label">New QR Code Preview:</label>
-                            <img id="editQRCodePreview" src="" alt="New QR Code Preview" class="img-fluid" style="display: none; max-width: 100px; margin-top: 10px;">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Update Payment</button>
-                    </div>
                 </form>
             </div>
         </div>

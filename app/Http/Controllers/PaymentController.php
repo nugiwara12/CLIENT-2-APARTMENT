@@ -11,21 +11,20 @@ class PaymentController extends Controller
     // Display all payments
     public function index()
     {
-        // Get all payments
+        // Retrieve all payments from the database
         $payments = Payment::all();
-
+    
         // Count the total number of payments
         $paymentCount = $payments->count();
-
-        // Get the dates of the payments
+    
+        // Get the dates of the payments for additional data
         $paymentDates = $payments->pluck('created_at')->map(function($date) {
-            return $date->format('Y-m-d'); // Format the date as needed
+            return $date->format('Y-m-d');
         });
-
-        // Return the view with the necessary data
+    
+        // Pass data to the view
         return view('payment.index', compact('payments', 'paymentCount', 'paymentDates'));
     }
-    
 
     // Show the form for creating a new payment
     public function create()
