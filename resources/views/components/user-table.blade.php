@@ -3,7 +3,7 @@
     <x-modal.usermanagement.add-user />
 
     <div class="min-h-full">
-        <div class="overflow-x-auto"> <!-- Enable horizontal scrolling on smaller screens -->
+        <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-400">
                 <thead class="bg-gray-50">
                     <tr>
@@ -11,6 +11,7 @@
                         <th class="px-6 py-3 text-left text-xs font-normal text-black uppercase tracking-wider">Name</th>
                         <th class="px-6 py-3 text-left text-xs font-normal text-black uppercase tracking-wider">Role</th>
                         <th class="px-6 py-3 text-left text-xs font-normal text-black uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-normal text-black uppercase tracking-wider">Due Date</th>
                         <th class="px-4 py-3 text-left text-xs font-normal text-black uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -21,6 +22,10 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->role }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->email }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->due_date ?? 'N/A' }}</td>
+                        @if ($user->is_past_due)
+                            <span class="text-red-500">Past Due</span>
+                        @endif
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">
                             <div class="flex space-x-2">
                                 <!-- Edit Button -->
@@ -28,6 +33,13 @@
                                         class="bg-blue-600 text-white w-10 h-10 rounded-md hover:bg-blue-700 focus:outline-none flex justify-center items-center"
                                         data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}" title="Edit">
                                     <i class="bi bi-pencil-square text-lg"></i>
+                                </button>
+
+                                <!-- Set Due Date Button -->
+                                <button type="button" 
+                                        class="bg-yellow-500 text-white w-10 h-10 rounded-md hover:bg-yellow-600 focus:outline-none flex justify-center items-center"
+                                        data-bs-toggle="modal" data-bs-target="#setDueDateModal{{ $user->id }}" title="Set Due Date">
+                                    <i class="bi bi-calendar-event text-lg"></i>
                                 </button>
 
                                 <!-- Delete Form -->
@@ -43,12 +55,38 @@
                             </div>    
                         </td>
                     </tr>
+
+                    <!-- Modal for Setting Due Date -->
+                    <div class="modal fade" id="setDueDateModal{{ $user->id }}" tabindex="-1" aria-labelledby="setDueDateLabel{{ $user->id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="setDueDateLabel{{ $user->id }}">Set Due Date for {{ $user->name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form action="{{ route('usermanagement.setDueDate', $user->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="modal-body">
+                                        <label for="due_date{{ $user->id }}" class="form-label">Due Date:</label>
+                                        <input type="date" id="due_date{{ $user->id }}" name="due_date" class="form-control" value="{{ $user->due_date }}">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Save Due Date</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                     @endforeach
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
 
 <!-- Modals for Edit User -->
 @foreach ($users as $user)

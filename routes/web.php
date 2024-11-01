@@ -10,14 +10,19 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\AboutController;
-
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\DashboardController;
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -26,7 +31,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('email/verify/{id}/{hash}', function () {
-})->middleware(['signed'])->name('verification.verify');    
+})->middleware(['signed'])->name('verification.verify');
 
 Route::get('thankyou', [RegisteredUserController::class, 'showThankYou'])->name('thank.you');
 require __DIR__.'/auth.php';
@@ -40,6 +45,8 @@ Route::controller(UserManagementController::class)->prefix('usermanagement')->gr
     Route::get('{id}/edit', 'edit')->name('usermanagement.edit');   
     Route::put('{id}', 'update')->name('usermanagement.update');  
     Route::delete('{id}', 'destroy')->name('usermanagement.destroy');
+    Route::put('/usermanagement/{id}/setDueDate', [UserManagementController::class, 'setDueDate'])->name('usermanagement.setDueDate');
+
 });
 
 Route::get('/booking', [ApartmentRoomController::class, 'index'])->name('booking');
@@ -77,3 +84,23 @@ Route::get('/contacts', [ContactController::class, 'index'])->name('contact.inde
 Route::get('/contacts/{id}/edit', [ContactController::class, 'edit'])->name('contact.edit'); // Edit a specific contact
 Route::put('/contacts/{id}', [ContactController::class, 'update'])->name('contact.update'); // Update a specific contact
 Route::delete('/contact/{id}', [ContactController::class, 'destroy'])->name('contact.destroy');
+
+
+// Display all payments
+Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+
+// Show the form for creating a new payment
+Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');
+
+// Store a new payment record
+Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
+
+// Show the form for editing an existing payment
+Route::get('/payments/{id}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
+
+// Update an existing payment record
+Route::put('/payments/{id}', [PaymentController::class, 'update'])->name('payments.update');
+
+// Delete a specific payment record
+Route::delete('/payments/{id}', [PaymentController::class, 'destroy'])->name('payments.destroy');
+Route::get('/payments/{id}', [PaymentController::class, 'show'])->name('payments.show');
