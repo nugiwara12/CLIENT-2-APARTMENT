@@ -28,7 +28,7 @@
                             @endif
                             {{ $user->due_date ?? 'N/A' }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->delivery_status }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->reminder_status }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">
                             <div class="flex space-x-2">
                                 <!-- Reminders Button -->
