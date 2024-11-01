@@ -170,7 +170,7 @@
 
     <div class="min-w-screen min-h-screen bg-gray-200 flex items-center justify-center px-5 pb-10 pt-16">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto" style="max-width: 1200px">
-            <!-- First Form -->
+            <!-- First Form for Gcash -->
             <div class="w-full mx-auto rounded-lg bg-white shadow-lg p-5 text-gray-700">
                 <form action="{{ route('payments.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -188,6 +188,27 @@
                         </label>
                         <label for="gcash_number" class="text-center">095654245165</label>
                     </div>
+                    
+                    <!-- Due Date Dropdown -->
+                    <div class="mb-3">
+                        <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
+                        <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
+                            <option disabled>Select one or more due dates</option>
+                            
+                            <!-- Current Due Dates -->
+                            @foreach($dueDates as $date)
+                                <option value="{{ $date }}">{{ $date }}</option>
+                            @endforeach
+                            
+                            <!-- Optional Divider for Past Due Dates -->
+                            <option disabled>────── Past Due Dates ──────</option>
+                            
+                            <!-- Past Due Dates -->
+                            @foreach($pastDueDates as $date)
+                                <option value="{{ $date }}">{{ $date }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="mb-3">
                         <label class="font-bold text-sm mb-2 ml-1">Full Name</label>
                         <div>
@@ -198,6 +219,12 @@
                         <label class="font-bold text-sm mb-2 ml-1">Phone Number (Gcash Registered)</label>
                         <div>
                             <input name="phone_number" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter your Phone Number" type="text" required/>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="font-bold text-sm mb-2 ml-1">Payment Method</label>
+                        <div>
+                            <input name="payment_method" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" type="text" value="GCASH" readonly/>
                         </div>
                     </div>
                     <div class="mb-10">
@@ -214,7 +241,7 @@
                 </form>
             </div>
 
-            <!-- Second Form -->
+            <!-- Second Form for Maya -->
             <div class="w-full mx-auto rounded-lg bg-white shadow-lg p-5 text-gray-700">
                 <form action="{{ route('payments.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -227,10 +254,29 @@
                         <h1 class="text-center font-bold text-xl uppercase">Secure payment info</h1>
                     </div>
                     <div class="flex flex-col items-center justify-center">
-                        <label for="gcash" class="flex items-center cursor-pointer mb-2">
-                            <img src="{{ asset('assets/images/qr-code.png') }}" alt="GCash Logo" class="h-40">
+                        <label for="maya" class="flex items-center cursor-pointer mb-2">
+                            <img src="{{ asset('assets/images/qr-code.png') }}" alt="Maya Logo" class="h-40">
                         </label>
-                        <label for="gcash_number" class="text-center">095654245165</label>
+                        <label for="maya_number" class="text-center">095654245165</label>
+                    </div>               
+                    <div class="mb-3">
+                        <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
+                        <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
+                            <option disabled>Select one or more due dates</option>
+                            
+                            <!-- Current Due Dates -->
+                            @foreach($dueDates as $date)
+                                <option value="{{ $date }}">{{ $date }}</option>
+                            @endforeach
+                            
+                            <!-- Optional Divider for Past Due Dates -->
+                            <option disabled>────── Past Due Dates ──────</option>
+                            
+                            <!-- Past Due Dates -->
+                            @foreach($pastDueDates as $date)
+                                <option value="{{ $date }}">{{ $date }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label class="font-bold text-sm mb-2 ml-1">Full Name</label>
@@ -239,9 +285,15 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Phone Number (Gcash Registered)</label>
+                        <label class="font-bold text-sm mb-2 ml-1">Phone Number (Maya Registered)</label>
                         <div>
                             <input name="phone_number" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter your Phone Number" type="text" required/>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="font-bold text-sm mb-2 ml-1">Payment Method</label>
+                        <div>
+                            <input name="payment_method" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" type="text" value="Maya" readonly/>
                         </div>
                     </div>
                     <div class="mb-10">
@@ -259,6 +311,7 @@
             </div>
         </div>
     </div>
+
 
 
 

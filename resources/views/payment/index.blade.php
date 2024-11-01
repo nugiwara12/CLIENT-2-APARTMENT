@@ -14,6 +14,8 @@
                     <tr>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Full Name</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Phone Number</th>
+                        <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Payment Method</th>
+                        <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Due Date</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">QR Code</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -23,6 +25,19 @@
                         <tr class="hover:bg-gray-1000">
                             <td class="px-6 py-4 border-b border-gray-300">{{ $payment->full_name }}</td>
                             <td class="px-6 py-4 border-b border-gray-300">{{ $payment->phone_number }}</td>
+                            <td class="px-6 py-4 border-b border-gray-300">{{ $payment->payment_method }}</td>
+                            <td class="px-6 py-4 border-b border-gray-300">
+                                @php
+                                    $dueDates = json_decode($payment->due_date, true); // Decode the JSON string
+                                @endphp
+
+                                @if($dueDates && is_array($dueDates))
+                                    {{ implode(', ', $dueDates) }}
+                                @else
+                                    No due dates set
+                                @endif
+                            </td>
+
                             <td class="px-6 py-4 border-b border-gray-300">
                                 <img src="{{ asset('storage/' . $payment->qr_code) }}" alt="QR Code" class="h-10">
                             </td>
@@ -32,6 +47,8 @@
                                         data-bs-toggle="modal" data-bs-target="#editModal"
                                         data-full-name="{{ $payment->full_name }}"
                                         data-phone-number="{{ $payment->phone_number }}"
+                                        data-payment-method="{{ $payment->payment_method }}"
+                                        data-due-dates="{{ is_array(json_decode($payment->due_date)) ? implode(',', json_decode($payment->due_date)) : '' }}"
                                         data-qr-code="{{ asset('storage/' . $payment->qr_code) }}"
                                         data-payment-id="{{ $payment->id }}">
                                         <i class="bi bi-pencil-square"></i>
@@ -67,6 +84,27 @@
                         <div class="mb-3">
                             <label for="createPhoneNumber" class="form-label">Phone Number</label>
                             <input type="text" class="form-control" name="phone_number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="paymentMethod" class="form-label">Payment Method</label>
+                            <select id="paymentMethod" class="form-select" name="payment_method" required>
+                                <option value="" disabled selected>Select a payment method</option>
+                                <option value="GCASH">GCASH</option>
+                                <option value="MAYA">MAYA</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
+                            <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
+                                <option disabled>Select one or more due dates</option>
+                                @foreach($dueDates as $date)
+                                    <option value="{{ $date }}">{{ $date }}</option>
+                                @endforeach
+                                <option disabled>────── Past Due Dates ──────</option>
+                                @foreach($pastDueDates as $dates)
+                                    <option value="{{ $date }}">{{ $dates }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="createQRCode" class="form-label">Upload QR Code</label>
@@ -108,6 +146,27 @@
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <select id="editPaymentMethod" class="form-select" name="payment_method" required>
+                                <option value="GCASH" {{ $payment->payment_method == 'GCASH' ? 'selected' : '' }}>GCASH</option>
+                                <option value="MAYA" {{ $payment->payment_method == 'MAYA' ? 'selected' : '' }}>MAYA</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
+                            <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
+                                <option disabled>Select one or more due dates</option>
+                                @foreach($dueDates as $date)
+                                    <option value="{{ $date }}" {{ is_array($payment->due_dates) && in_array($date, $payment->due_dates) ? 'selected' : '' }}>{{ $date }}</option>
+                                @endforeach
+                                <option disabled>────── Past Due Dates ──────</option>
+                                @foreach($pastDueDates as $date)
+                                    <option value="{{ $date }}" {{ is_array($payment->due_dates) && in_array($date, $payment->due_dates) ? 'selected' : '' }}>{{ $date }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="form-group mb-3">
                             <label for="editQRCode">Upload New QR Code</label>
                             <input type="file" class="form-control" name="qr_code" accept="image/*" onchange="previewImage(event, 'editQRCodePreview')">

@@ -13,5 +13,10 @@ class Payment extends Model
         'full_name',
         'phone_number',
         'qr_code',
+        'payment_method',
+        'due_date',
+    ];
+    protected $casts = [
+        'due_date' => 'array',
     ];
 }

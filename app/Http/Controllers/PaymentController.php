@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
+use Carbon\Carbon;
+use App\Http\Controllers\Auth\UserManagementController;
 
 class PaymentController extends Controller
 {
@@ -13,6 +16,9 @@ class PaymentController extends Controller
     {
         // Get all payments
         $payments = Payment::all();
+        // Update the past due status of users
+        $userManagement = new UserManagementController();
+        $userManagement->updatePastDueStatus();
 
         // Count the total number of payments
         $paymentCount = $payments->count();
@@ -21,9 +27,31 @@ class PaymentController extends Controller
         $paymentDates = $payments->pluck('created_at')->map(function($date) {
             return $date->format('Y-m-d'); // Format the date as needed
         });
+         // Retrieve the count of users with due dates set for today
+         $today = Carbon::today();
+         $dueTodayCount = User::whereDate('due_date', $today)->count();
+ 
+         // Retrieve all upcoming due dates, including today
+         $dueDates = User::whereDate('due_date', '>=', $today)
+                         ->orderBy('due_date')
+                         ->pluck('due_date')
+                         ->map(function ($date) {
+                             return Carbon::parse($date)->format('Y-m-d');
+                         });
+ 
+         // Fetch only the past due dates
+         $pastDueDates = User::where('is_past_due', true)
+             ->orderByDesc('due_date')
+             ->pluck('due_date')
+             ->map(function ($date) {
+                 return Carbon::parse($date)->format('Y-m-d');
+             });
+ 
+         // Count of past due dates
+         $pastDueCount = $pastDueDates->count();
 
         // Return the view with the necessary data
-        return view('payment.index', compact('payments', 'paymentCount', 'paymentDates'));
+        return view('payment.index', compact('payments', 'paymentCount', 'paymentDates','dueTodayCount', 'dueDates', 'pastDueDates', 'pastDueCount'));
     }
     
 
@@ -40,6 +68,9 @@ class PaymentController extends Controller
             'full_name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:11',
             'qr_code' => 'required|file|mimes:png,jpg,jpeg|max:2048',
+            'payment_method' => 'required|string|max:255', // Validate payment method
+            'due_date' => 'required|array', // Validate due_date as an array
+            'due_date.*' => 'string|date_format:Y-m-d', // Optional: Validate each due date format if needed
         ]);
 
         // Save the QR code and create the payment record
@@ -49,6 +80,8 @@ class PaymentController extends Controller
             'full_name' => $request->input('full_name'),
             'phone_number' => $request->input('phone_number'),
             'qr_code' => $qrCodePath,
+            'payment_method' => $request->input('payment_method'),
+            'due_date' => json_encode($request->input('due_date')), // Store due dates as JSON
         ]);
 
         return redirect()->back()->with('success', 'Payment info submitted successfully!');
@@ -70,6 +103,9 @@ class PaymentController extends Controller
             'full_name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:11',
             'qr_code' => 'nullable|file|mimes:png,jpg,jpeg|max:2048',
+            'payment_method' => 'required|string|max:255', // Validate payment method
+            'due_date' => 'required|array', // Validate due_date as an array
+            'due_date.*' => 'string|date_format:Y-m-d', // Optional: Validate each due date format if needed
         ]);
 
         // Update QR code if a new file is uploaded
@@ -85,6 +121,8 @@ class PaymentController extends Controller
         // Update other fields
         $payment->full_name = $request->input('full_name');
         $payment->phone_number = $request->input('phone_number');
+        $payment->payment_method = $request->input('payment_method'); // Update payment method
+        $payment->due_date = json_encode($request->input('due_date'));
         $payment->save();
 
         return redirect()->back()->with('success', 'Payment info updated successfully!');
