@@ -62,7 +62,24 @@
                             <li><a href="{{ route('booking.forms') }}" class="{{ request()->is('booking-forms') ? 'active' : '' }}">RENT APARTMENT</a></li>
                             <li><a href="{{ route('nav-contents.about_us') }}" class="{{ request()->is('nav-contents.about_us') ? 'active' : '' }}">ABOUT US</a></li>
                             <li><a href="#contact-form" class="{{ request()->is('#contact-form') ? 'active' : '' }}">CONTACT US</a></li>
-                            <li><a href="{{ route('login') }}" class="{{ request()->is('login') ? 'active' : '' }}"><i class="bi bi-person-circle"></i>SIGN IN</a></li>
+                            @if(Auth::check())
+                                <!-- Display user name and email if logged in -->
+                                <li class="px-2">
+                                    <div onclick="window.location.href='{{ route('dashboard') }}'"
+                                        class="font-bold bg-orange-400 text-gray-800 py-2 px-2 text-base
+                                                cursor-pointer transition duration-300 ease-in-out transform
+                                                hover:bg-orange-600 hover:text-white hover:border-orange-600 rounded-md">
+                                        {{ Auth::user()->name }}
+                                    </div>
+                                </li>
+                            @else
+                                <!-- Show Sign In link if not logged in -->
+                                <li>
+                                    <a href="{{ route('login') }}" class="{{ request()->is('login') ? 'active' : '' }}">
+                                        <i class="bi bi-person-circle"></i> SIGN IN
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
 
                         <!-- Mobile Menu Trigger -->
