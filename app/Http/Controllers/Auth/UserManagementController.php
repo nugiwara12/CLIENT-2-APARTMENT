@@ -174,14 +174,6 @@ class UserManagementController extends Controller
         ]);
     }
 
-    public function destroy(string $id)
-    {
-        $users = User::findOrFail($id);
-  
-        $users->delete();
-  
-        return redirect()->route('usermanagement')->with('success', 'UserManagement deleted successfully');
-    }
     public function activity()
     {
         $activityLog = DB::table('activity_logs')->get();
@@ -202,5 +194,42 @@ class UserManagementController extends Controller
    
         User::find(auth()->user()->id)->update(['password'=> Hash::make($request->new_password)]);
         return redirect()->route('dashboard');
+    }
+
+    public function destroy($id)
+    {
+        // Find the user by ID
+        $user = User::find($id);
+    
+        if (!$user) {
+            return response()->json(['error' => 'Unable to locate the user'], 404);
+        }
+    
+        // Soft delete the user by setting status to 0
+        $user->status = 0;
+        $user->save();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'User successfully deleted',
+            'id' => $id,
+        ]);
+    }    
+
+    public function restore($id)
+    {
+        if (!in_array(Auth::user()->role, ['admin', 'user'])) {
+            abort(404); // Return a 404 error if user is unauthorized
+        }
+        $user = User::findOrFail($id);
+        
+        // Check if the user is already marked as deleted
+        if ($user->status === 0) {
+            // Restore the user by setting the status back to 1
+            $user->status = 1;
+            $user->save();
+        }
+
+        return response()->json(['success' => true]);
     }
 }

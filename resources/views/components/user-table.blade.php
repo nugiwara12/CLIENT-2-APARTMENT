@@ -31,6 +31,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">{{ $user->reminder_status }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-black">
                             <div class="flex space-x-2">
+                                @if($user->status === 1)
                                 <!-- Reminders Button -->
                                 <button type="button" onclick="confirmAction('{{ route('reminder.reminder', $user->id) }}', 'Reminders')" 
                                         class="flex items-center justify-center w-10 h-10 text-white bg-gray-600 hover:bg-gray-500 rounded-full focus:outline-none" 
@@ -55,15 +56,24 @@
                                 </button>
 
                                 <!-- Delete Button -->
-                                <form action="{{ route('usermanagement.destroy', $user->id) }}" method="POST" class="delete-form inline">
+                                <form id="deleteForm{{ $user->id }}" action="{{ route('usermanagement.destroy', $user->id) }}" method="POST" class="delete-form inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" 
+                                            onclick="confirmDelete({{ $user->id }})"
                                             class="flex items-center justify-center w-10 h-10 text-white bg-red-600 hover:bg-red-700 rounded-full focus:outline-none delete-button" 
                                             title="Delete">
                                         <i class="bi bi-trash3 text-lg"></i>
                                     </button>
                                 </form>
+                                @else
+                                <form id="restoreForm{{ $user->id }}" action="{{ route('usermanagement.restore', $user->id) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        <button type="button" class="flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white hover:bg-green-500" onclick="confirmRestore('{{ $user->id }}')" title="Restore">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>    
                         </td>
                     </tr>
@@ -90,7 +100,6 @@
                             </div>
                         </div>
                     </div>
-
                     @endforeach
                 </tbody>
             </table>
@@ -125,64 +134,104 @@
 <!-- SweetAlert2 and Delete Confirmation Script -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Select all delete buttons
-        document.querySelectorAll('.delete-button').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault(); // Prevent form submission
-                const form = this.closest('.delete-form'); // Get the closest form element
+function confirmDelete(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Locate the specific form based on the given ID
+            const form = document.getElementById('deleteForm' + id);
+            const actionUrl = form.getAttribute('action');
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit(); // Submit the form if confirmed
-                    }
-                });
-            });
-        });
-    });
-
-    function confirmAction(actionUrl, actionName) {
-        Swal.fire({
-            title: `Are you sure you want to mark as ${actionName}?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = actionUrl; // URL passed from the button's onclick
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_token';
-                csrfInput.value = '{{ csrf_token() }}'; // Laravel CSRF token
-                form.appendChild(csrfInput);
-                document.body.appendChild(form);
-                form.submit();
-
-                // Show success message after form submission
-                Swal.fire({
-                    title: 'Success!',
-                    text: `Order marked as ${actionName} successfully.`,
-                    icon: 'success',
-                    confirmButtonColor: '#3085d6',
-                    timer: 2000, // Optional: Auto close after 2 seconds
-                    willClose: () => {
-                        // Reload the page to see the changes after success
+            $.ajax({
+                url: actionUrl,
+                type: 'POST',
+                data: {
+                    _method: 'DELETE',
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    Swal.fire('Deleted!', 'Product deleted successfully!', 'success').then(() => {
                         location.reload();
-                    }
-                });
-            }
-        });
-    }
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire('Error!', 'Error deleting product: ' + xhr.responseText, 'error');
+                }
+            });
+        }
+    });
+}
+
+function confirmAction(actionUrl, actionName) {
+    Swal.fire({
+        title: `Are you sure you want to mark as ${actionName}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = actionUrl; // URL passed from the button's onclick
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}'; // Laravel CSRF token
+            form.appendChild(csrfInput);
+            document.body.appendChild(form);
+            form.submit();
+
+            // Show success message after form submission
+            Swal.fire({
+                title: 'Success!',
+                text: `Order marked as ${actionName} successfully.`,
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+                timer: 2000, // Optional: Auto close after 2 seconds
+                willClose: () => {
+                    // Reload the page to see the changes after success
+                    location.reload();
+                }
+            });
+        }
+    });
+}
+function confirmRestore(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You want to restore this product?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, restore it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: $('#restoreForm' + id).attr('action'),
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    Swal.fire('Restored!', 'Product restored successfully!', 'success').then(() => {
+                        location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire('Error!', 'Error restoring product: ' + xhr.responseText, 'error');
+                }
+            });
+        }
+    });
+}
 </script>

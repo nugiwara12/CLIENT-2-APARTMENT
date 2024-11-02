@@ -45,6 +45,7 @@ Route::controller(UserManagementController::class)->prefix('usermanagement')->gr
     Route::get('{id}/edit', 'edit')->name('usermanagement.edit');   
     Route::put('{id}', 'update')->name('usermanagement.update');  
     Route::delete('{id}', 'destroy')->name('usermanagement.destroy');
+    Route::post('restore/{id}', 'restore')->name('usermanagement.restore'); // Add restore route here
     Route::put('/usermanagement/{id}/setDueDate', [UserManagementController::class, 'setDueDate'])->name('usermanagement.setDueDate');
 });
 

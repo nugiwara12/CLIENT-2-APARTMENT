@@ -30,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'due_date',
         'is_past_due',
         'delivery_status',
+        'status',
     ];
 
     /**
