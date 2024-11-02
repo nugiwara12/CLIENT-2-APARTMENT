@@ -12,6 +12,8 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InquiryController;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -89,6 +91,12 @@ Route::get('/contacts/{id}/edit', [ContactController::class, 'edit'])->name('con
 Route::put('/contacts/{id}', [ContactController::class, 'update'])->name('contact.update'); // Update a specific contact
 Route::delete('/contact/{id}', [ContactController::class, 'destroy'])->name('contact.destroy');
 Route::post('/contact/{id}', [ContactController::class, 'restore'])->name('contact.restore');
+
+
+// Inquiry Routes
+Route::get('/inquiry', [ContactController::class, 'create'])->name('booking.forms');
+Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
+
 
 
 

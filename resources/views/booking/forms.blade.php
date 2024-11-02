@@ -108,30 +108,36 @@
                                 </div>
 
                                 <!-- User Inquiry Form -->
-                                <form id="inquiryForm" action="" method="POST" enctype="multipart/form-data">
+                                <form id="inquiryForm" action="{{ route('inquiry.store') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div>
-                                        <label class="text-sm font-semibold mb-2" for="title">Title</label>
-                                        <input type="text" id="title" name="title" required class="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter event title">
-                                        <span id="titleError" class="text-red-500 mt-1 text-sm"></span>
+                                        <label class="text-sm font-semibold mb-2" for="price">Price</label>
+                                        <input type="text" id="price" name="price" value="{{ number_format($room->price, 2) }}" required class="bg-gray-200 border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter price" readonly />
+                                        <span id="priceError" class="text-red-500 mt-1 text-sm"></span> <!-- Display error here if needed -->
+                                    </div>
+
+                                    <div>
+                                        <label class="text-sm font-semibold mb-2" for="room_number">Room Number</label>
+                                        <input type="text" id="room_number" name="room_number" value="{{ $room['room_number'] }}" required class="bg-gray-200 border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter event room_number" readonly>
+                                        <span id="RoomNumberError" class="text-red-500 mt-1 text-sm"></span> <!-- Display error here if needed -->
                                     </div>
 
                                     <div>
                                         <label class="text-sm font-semibold mb-2" for="full_name">Full Name</label>
                                         <input type="text" id="full_name" name="full_name" required class="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter your full name">
-                                        <span id="fullNameError" class="text-red-500 mt-1 text-sm"></span>
+                                        <span id="fullNameError" class="text-red-500 mt-1 text-sm"></span> <!-- Display error here if needed -->
                                     </div>
 
                                     <div>
                                         <label class="text-sm font-semibold mb-2" for="contact_number">Contact Number</label>
                                         <input type="text" id="contact_number" name="contact_number" required class="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter your contact number">
-                                        <span id="contactNumberError" class="text-red-500 mt-1 text-sm"></span>
+                                        <span id="contactNumberError" class="text-red-500 mt-1 text-sm"></span> <!-- Display error here if needed -->
                                     </div>
 
                                     <div>
                                         <label class="text-sm font-semibold mb-2" for="email">Email Address</label>
                                         <input type="email" id="email" name="email" required class="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter your email address">
-                                        <span id="emailError" class="text-red-500 mt-1 text-sm"></span>
+                                        <span id="emailError" class="text-red-500 mt-1 text-sm"></span> <!-- Display error here if needed -->
                                     </div>
 
                                     <!-- Valid ID Upload Field -->
@@ -143,7 +149,7 @@
                                     <div class="max-w-full mx-auto py-2">
                                         <div class="flex items-center space-x-2">
                                             <input type="checkbox" id="agreementCheckbox" name="agreement" class="mr-1" required>
-                                            <label for="agreementCheckbox" class="text-sm">I agree to the terms and conditions By using our service, you agree to our terms and conditions. Please read them carefully. I agree to the terms and conditions for the 1-month deposit and 1-month advance. </label>
+                                            <label for="agreementCheckbox" class="text-sm">I agree to the terms and conditions. By using our service, you agree to our terms and conditions. Please read them carefully. I agree to the terms and conditions for the 1-month deposit and 1-month advance.</label>
                                         </div>
                                     </div>
 
@@ -166,6 +172,7 @@
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
@@ -218,6 +225,46 @@ function previewImage(event, previewId) {
 // Event listener to reset modal on hide
 $('#inquireModal').on('hidden.bs.modal', function () {
     resetModal(); // Call the reset function when the modal is closed
+});
+
+
+$(document).ready(function() {
+    $('#inquiryForm').on('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Clear previous response messages
+        $('#ajaxResponse').html('');
+
+        // Gather form data
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: $(this).attr('action'), // Form action URL
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                $('#ajaxResponse').html('<span class="text-green-500">' + response.message + '</span>'); // Display success message
+                $('#inquireModal').modal('hide'); // Optionally hide the modal
+                // Reset form fields if necessary
+                $('#inquiryForm')[0].reset();
+            },
+            error: function(xhr) {
+                // Handle validation errors
+                let errors = xhr.responseJSON.errors;
+                let errorMessage = '';
+                if (errors) {
+                    $.each(errors, function(key, value) {
+                        errorMessage += value[0] + '<br>'; // Concatenate error messages
+                    });
+                } else {
+                    errorMessage = 'An unexpected error occurred. Please try again.';
+                }
+                $('#ajaxResponse').html(errorMessage); // Display error messages
+            }
+        });
+    });
 });
 </script>
 @endsection
