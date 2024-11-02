@@ -108,7 +108,7 @@
                                 </div>
 
                                 <!-- User Inquiry Form -->
-                                <form id="inquiryForm" action="{{ route('inquiry.store') }}" method="POST" enctype="multipart/form-data">
+                                <form id="inquiryForm" action="{{ route('inquiry.store') }}" method="POST">
                                     @csrf
                                     <div>
                                         <label class="text-sm font-semibold mb-2" for="price">Price</label>
@@ -171,57 +171,11 @@
 <!-- Bootstrap CSS -->
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
-function updatePerPage(value) {
-    const url = new URL(window.location);
-    url.searchParams.set('perPage', value);
-    window.location = url; // Redirect to the same page with the new perPage value
-}
-
-// Image preview with validation
-function previewImage(event, previewId) {
-    const file = event.target.files[0];
-    const preview = document.getElementById(previewId);
-    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    const validIdError = document.getElementById('validIdError');
-
-    const sampleImageDivs = {
-        'valid-id': 'validId',
-    };
-
-    if (file) {
-        // Check file type
-        if (!validImageTypes.includes(file.type)) {
-            validIdError.textContent = 'Invalid file type. Please upload JPG, PNG, GIF, or WEBP.';
-            event.target.value = ''; // Clear the input
-            preview.classList.add('hidden'); // Hide the preview image
-            return; // Exit the function
-        } else {
-            // Clear the error message
-            validIdError.textContent = '';
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result; // Set the image source
-            preview.classList.remove('hidden'); // Show the image
-
-            // Hide the corresponding sample image div
-            if (sampleImageDivs[previewId]) {
-                document.getElementById(sampleImageDivs[previewId]).classList.add('hidden');
-            }
-        };
-        reader.readAsDataURL(file);
-    } else {
-        preview.classList.add('hidden'); // Hide the preview if no file is selected
-        validIdError.textContent = ''; // Clear error message
-    }
-}
-
 // Event listener to reset modal on hide
 $('#inquireModal').on('hidden.bs.modal', function () {
     resetModal(); // Call the reset function when the modal is closed
