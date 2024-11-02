@@ -15,6 +15,7 @@ class Payment extends Model
         'qr_code',
         'payment_method',
         'due_date',
+        'amount',
     ];
     protected $casts = [
         'due_date' => 'array',

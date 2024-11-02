@@ -21,7 +21,8 @@ class PaymentController extends Controller
         $payments = Payment::when($search, function ($query, $search) {
                 return $query->where('full_name', 'like', "%{$search}%")
                             ->orWhere('phone_number', 'like', "%{$search}%")
-                            ->orWhere('payment_method', 'like', "%{$search}%");
+                            ->orWhere('payment_method', 'like', "%{$search}%")
+                            ->orWhere('amount', $search);
             })
             ->paginate($perPage);
 
@@ -62,6 +63,7 @@ class PaymentController extends Controller
         $request->validate([
             'full_name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:11',
+            'amount' => 'required|numeric',
             'qr_code' => 'required|file|mimes:png,jpg,jpeg|max:2048',
             'payment_method' => 'required|string|max:255', // Validate payment method
             'due_date' => 'required|array', // Validate due_date as an array
@@ -74,6 +76,7 @@ class PaymentController extends Controller
         Payment::create([
             'full_name' => $request->input('full_name'),
             'phone_number' => $request->input('phone_number'),
+            'amount' => $request->input('amount'),
             'qr_code' => $qrCodePath,
             'payment_method' => $request->input('payment_method'),
             'due_date' => json_encode($request->input('due_date')), // Store due dates as JSON
@@ -103,6 +106,7 @@ class PaymentController extends Controller
         $request->validate([
             'full_name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:11',
+            'amount' => 'required|numeric',
             'qr_code' => 'nullable|file|mimes:png,jpg,jpeg|max:2048',
             'payment_method' => 'required|string|max:255', // Validate payment method
             'due_date' => 'required|array', // Validate due_date as an array
@@ -122,6 +126,7 @@ class PaymentController extends Controller
         // Update other fields
         $payment->full_name = $request->input('full_name');
         $payment->phone_number = $request->input('phone_number');
+        $payment->amount = $request->input('amount');
         $payment->payment_method = $request->input('payment_method'); // Update payment method
         $payment->due_date = json_encode($request->input('due_date'));
         $payment->save();
