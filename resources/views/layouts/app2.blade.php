@@ -35,6 +35,9 @@
     <link rel="stylesheet" href="{{ asset('admin_assets/assets/css/animate.css')}}">
     <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
 
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
     @yield('styles')
 
     <!-- Vite Scripts -->
