@@ -29,21 +29,28 @@ class PaymentController extends Controller
         // Existing code for past due status and other counts remains as it is
         $userManagement = new UserManagementController();
         $userManagement->updatePastDueStatus();
-
+        
         $paymentCount = Payment::count();
-        $paymentDates = Payment::pluck('created_at')->map(fn($date) => $date->format('Y-m-d'));
+        $paymentDates = Payment::pluck('created_at')->map(function ($date) {
+            return $date->format('Y-m-d');
+        });
 
         $today = Carbon::today();
-        $dueTodayCount = User::whereDate('due_date', $today)->count();
+        $dueTodayCount = User::whereDate('due_date', '>=', $today)->count();
         $dueDates = User::whereDate('due_date', '>=', $today)
                         ->orderBy('due_date')
                         ->pluck('due_date')
-                        ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'));
+                        ->map(function ($date) {
+                            return Carbon::parse($date)->format('Y-m-d');
+                        });
 
+        // Fetch only the past due dates
         $pastDueDates = User::where('is_past_due', true)
                             ->orderByDesc('due_date')
                             ->pluck('due_date')
-                            ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'));
+                            ->map(function ($date) {
+                                return Carbon::parse($date)->format('Y-m-d');
+                            });
 
         $pastDueCount = $pastDueDates->count();
 

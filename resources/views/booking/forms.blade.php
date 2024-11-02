@@ -108,7 +108,7 @@
                                 </div>
 
                                 <!-- User Inquiry Form -->
-                                <form id="inquiryForm" action="{{ route('inquiry.store') }}" method="POST">
+                                <form id="inquiryForm" action="{{ route('inquiry.store') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div>
                                         <label class="text-sm font-semibold mb-2" for="price">Price</label>
@@ -157,6 +157,8 @@
                                         <button type="submit" id="submitBtn" class="bg-orange-600 text-white rounded-md px-4 py-2 hover:bg-orange-700">Submit</button>
                                     </div>
                                 </form>
+                                <div id="ajaxResponse" class="text-red-500 mt-1"></div> <!-- Display errors here -->
+
                             </div>
                         </div>
                     </div>
@@ -171,10 +173,6 @@
 <!-- Bootstrap CSS -->
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
 // Event listener to reset modal on hide
 $('#inquireModal').on('hidden.bs.modal', function () {

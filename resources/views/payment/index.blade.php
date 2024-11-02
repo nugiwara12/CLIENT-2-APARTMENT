@@ -40,6 +40,7 @@
                     <tr>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Full Name</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Phone Number</th>
+                        <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Payment Method</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Due Date</th>
                         <th class="px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-600 uppercase tracking-wider">Proof of Billing</th>
@@ -51,6 +52,7 @@
                         <tr class="hover:bg-gray-1000">
                             <td class="px-6 py-4 border-b border-gray-300">{{ $payment->full_name }}</td>
                             <td class="px-6 py-4 border-b border-gray-300">{{ $payment->phone_number }}</td>
+                            <td class="px-6 py-4 border-b border-gray-300">{{ $payment->amount }}</td>
                             <td class="px-6 py-4 border-b border-gray-300">{{ $payment->payment_method }}</td>
                             <td class="px-6 py-4 border-b border-gray-300">
                                 @php
@@ -73,6 +75,7 @@
                                         data-bs-toggle="modal" data-bs-target="#editModal"
                                         data-full-name="{{ $payment->full_name }}"
                                         data-phone-number="{{ $payment->phone_number }}"
+                                        data-amount="{{ $payment->amount }}"
                                         data-payment-method="{{ $payment->payment_method }}"
                                         data-due-dates="{{ is_array(json_decode($payment->due_date)) ? implode(',', json_decode($payment->due_date)) : '' }}"
                                         data-qr-code="{{ asset('storage/' . $payment->qr_code) }}"
@@ -105,6 +108,13 @@
                                                 <label for="editPhoneNumber">Phone Number</label>
                                                 <input type="text" class="form-control" name="phone_number" value="{{ old('phone_number', $payment->phone_number) }}"   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,11)" required>
                                                 @error('phone_number')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="editAmountPaid">Amount Paid</label>
+                                                <input type="number" class="form-control" name="amount" value="{{ old('amount', $payment->amount) }}" required>
+                                                @error('amount')
                                                     <div class="text-danger">{{ $message }}</div>
                                                 @enderror
                                             </div>
@@ -200,6 +210,10 @@
                             <input type="text" class="form-control" name="phone_number" placeholder="Enter phone number"  oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,11)" required>
                         </div>
                         <div class="mb-3">
+                            <label for="createAmountPaid" class="form-label">Amount Paid</label>
+                            <input type="number" class="form-control" name="amount" placeholder="Enter amount paid" required>
+                        </div>
+                        <div class="mb-3">
                             <label for="paymentMethod" class="form-label">Payment Method</label>
                             <select id="paymentMethod" class="form-select" name="payment_method" required>
                                 <option value="" disabled selected>Select a payment method</option>
@@ -212,7 +226,7 @@
                             <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
                                 <option disabled>Select one or more due dates</option>
                                 @foreach($dueDates as $date)
-                                    <option value="{{ $date }}">{{ $date }}</option>
+                                <option value="{{ $date }}">{{ $date }}</option>
                                 @endforeach
                                 <option disabled>────── Past Due Dates ──────</option>
                                 @foreach($pastDueDates as $date)

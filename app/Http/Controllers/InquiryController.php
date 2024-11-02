@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Inquiry; // Import the Inquiry model
+use App\Models\Inquiry;
+use Db;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
 class InquiryController extends Controller
@@ -28,14 +30,16 @@ class InquiryController extends Controller
     
         // Validate the incoming request
         $request->validate([
-            'price' => 'required|numeric',
+            'price' => 'required|string',
             'room_number' => 'required|string|max:255',
             'full_name' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
-            'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'agreement' => 'required|boolean',
+            'contact_number' => 'required|string',
+            'email' => 'required|email',
+            'valid_id' => 'file|mimes:jpg,jpeg,png,pdf|max:2048', // Adjust as needed
+            'agreement' => 'required|accepted',
         ]);
+
+        $agreementValue = $request->has('agreement') ? 1 : 0;
     
         // Handle file upload for valid ID
         $path = '';
@@ -54,7 +58,7 @@ class InquiryController extends Controller
             'contact_number' => $request->contact_number,
             'email' => $request->email,
             'valid_id' => $path,
-            'agreement' => $request->agreement,
+            'agreement' => $agreementValue,
             'inquiry_status' => 'pending',
         ]);
     
