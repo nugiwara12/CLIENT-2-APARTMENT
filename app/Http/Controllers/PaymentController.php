@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Auth\UserManagementController;
 
 class PaymentController extends Controller
@@ -78,6 +78,12 @@ class PaymentController extends Controller
             'payment_method' => $request->input('payment_method'),
             'due_date' => json_encode($request->input('due_date')), // Store due dates as JSON
         ]);
+
+        // Update the user payment status
+        $userId = auth()->user()->id; // Assuming you are getting the user id from auth
+        $userManagementController = new UserManagementController();
+        $userManagementController->processDueDatePayment($userId);
+        $userManagementController->processPastDueDatePayment($userId);
 
         return redirect()->back()->with('success', 'Payment info submitted successfully!');
     }

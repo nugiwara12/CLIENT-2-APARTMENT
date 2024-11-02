@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('password');
             $table->date('due_date')->nullable();
             $table->boolean('is_past_due')->default(false);
+            $table->integer('payment_count')->default(0);
             $table->string('reminder_status')->nullable();
             $table->tinyInteger('status')->default(1); 
             $table->rememberToken();
