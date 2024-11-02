@@ -115,27 +115,64 @@ class UserManagementController extends Controller
         return view('usermanagement.index', compact('pastDueUsers'));
     }
     public function updatePastDueStatus()
-{
-    $users = User::all();
+    {
+        $users = User::all();
 
-    // Check due dates and update is_past_due status accurately
-    foreach ($users as $user) {
-        if ($user->due_date) {
-            $dueDate = Carbon::parse($user->due_date);
+        // Check due dates and update is_past_due status accurately
+        foreach ($users as $user) {
+            if ($user->due_date) {
+                $dueDate = Carbon::parse($user->due_date);
 
-            if ($dueDate->isToday()) {
-                $user->is_past_due = false; // Due date is today, not past due
-            } elseif ($dueDate->isPast()) {
-                $user->is_past_due = true;  // Due date has passed, mark as past due
-            } else {
-                $user->is_past_due = false; // Due date is in the future
+                if ($dueDate->isToday()) {
+                    $user->is_past_due = false; // Due date is today, not past due
+                } elseif ($dueDate->isPast()) {
+                    $user->is_past_due = true;  // Due date has passed, mark as past due
+                } else {
+                    $user->is_past_due = false; // Due date is in the future
+                }
+                $user->save();
             }
-            $user->save();
         }
+    }
+    public function processDueDatePayment($userId)
+{
+    $user = User::findOrFail($userId);
+
+    // Check if the user has a due date that is today or in the future
+    if ($user->due_date && (Carbon::parse($user->due_date)->isToday() || Carbon::parse($user->due_date)->isFuture())) {
+        // Increment payment count
+        $user->payment_count += 1;
+        $user->due_date = null; // Clear the due date after payment
+        $user->is_past_due = false; // Reset past due status
+        $user->save();
+
+        // Log the successful payment processing
+        \Log::info("Payment processed for User ID: {$user->id}. Payment count: {$user->payment_count}");
+    } else {
+        \Log::info("User {$user->id} does not have a current due date.");
     }
 }
 
 
+public function processPastDueDatePayment($userId)
+{
+    $user = User::findOrFail($userId);
+    
+    \Log::info("User {$user->id} past due_date: {$user->due_date}");
+    
+    // Check if the user has a due date that is past
+    if ($user->due_date && Carbon::parse($user->due_date)->isPast()) {
+        \Log::info("User {$user->id} payment for past due date is being processed.");
+        
+        // Increment payment count
+        $user->payment_count += 1;
+        $user->due_date = null; // Clear the due date after payment
+        $user->is_past_due = false; // Reset past due status
+        $user->save();
+    } else {
+        \Log::info("User {$user->id} does not have a past due date.");
+    }
+}
 
     public function show(string $id)
     {

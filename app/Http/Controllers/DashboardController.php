@@ -24,9 +24,9 @@ class DashboardController extends Controller
             return $date->format('Y-m-d');
         });
 
-        // Retrieve the count of users with due dates set for today
+        // Retrieve the count of users with due dates set for today or in the future
         $today = Carbon::today();
-        $dueTodayCount = User::whereDate('due_date', $today)->count();
+        $dueTodayCount = User::whereDate('due_date', '>=', $today)->count();
 
         // Retrieve all upcoming due dates, including today
         $dueDates = User::whereDate('due_date', '>=', $today)
@@ -51,4 +51,3 @@ class DashboardController extends Controller
         return view('dashboard', compact('paymentCount', 'paymentDates', 'dueTodayCount', 'dueDates', 'pastDueDates', 'pastDueCount'));
     }
 }
-
