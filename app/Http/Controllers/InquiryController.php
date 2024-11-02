@@ -23,24 +23,29 @@ class InquiryController extends Controller
     // Store a newly created inquiry in storage
     public function store(Request $request)
     {
+        // Log incoming request data
+        \Log::info('Incoming request data:', $request->all());
+    
         // Validate the incoming request
         $request->validate([
-            'price' => 'required|numeric', // Validate price as numeric
-            'room_number' => 'required|string|max:255', // Validate room number
+            'price' => 'required|numeric',
+            'room_number' => 'required|string|max:255',
             'full_name' => 'required|string|max:255',
             'contact_number' => 'required|string|max:20',
             'email' => 'required|email|max:255',
             'valid_id' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'agreement' => 'required|boolean',
         ]);
-
+    
         // Handle file upload for valid ID
         $path = '';
         if ($request->hasFile('valid_id')) {
             $path = $request->file('valid_id')->store('valid_ids', 'public');
-            \Log::info('File stored at: ' . $path); // Log the file path
+            \Log::info('File stored at: ' . $path);
+        } else {
+            \Log::warning('No file uploaded for valid_id');
         }
-
+    
         // Create a new inquiry
         Inquiry::create([
             'price' => $request->price,
@@ -52,23 +57,24 @@ class InquiryController extends Controller
             'agreement' => $request->agreement,
             'inquiry_status' => 'pending',
         ]);
-
+    
         // Redirect back with a success message
-        return response()->json(['message' => 'Inquiry submitted successfully.'], 200);
+        return redirect()->back()->with('success', 'Inquiry submitted successfully.');
     }
+    
 
     // Display the specified inquiry
     public function show($id)
     {
         $inquiry = Inquiry::findOrFail($id); // Find the inquiry by ID or fail
-        return view('inquiries.show', compact('inquiry')); // Pass inquiry to the view
+        return view('inquiries.show', compact('inquiries')); // Pass inquiry to the view
     }
 
     // Show the form for editing the specified inquiry
     public function edit($id)
     {
         $inquiry = Inquiry::findOrFail($id); // Find the inquiry by ID or fail
-        return view('booking.forms', compact('inquiry')); // Pass inquiry to the edit view
+        return view('booking.forms', compact('inquiries')); // Pass inquiry to the edit view
     }
 
     // Update the specified inquiry in storage

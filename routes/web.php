@@ -94,8 +94,7 @@ Route::post('/contact/{id}', [ContactController::class, 'restore'])->name('conta
 
 
 // Inquiry Routes
-Route::get('/inquiry', [ContactController::class, 'create'])->name('booking.forms');
-Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
+Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiry.store');
 
 
 
