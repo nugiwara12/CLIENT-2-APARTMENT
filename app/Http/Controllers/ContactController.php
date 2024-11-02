@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Contact;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ContactConfirmation;
+use Auth;
 
 class ContactController extends Controller
 {
@@ -86,11 +87,45 @@ class ContactController extends Controller
 
         return redirect()->back()->with('success', 'Your message has been sent successfully!');
     }
-        public function destroy($id)
-    {
-        $contact = Contact::findOrFail($id);
-        $contact->delete();
+    
+    // public function destroy($id)
+    // {
+    //     $contact = Contact::findOrFail($id);
+    //     $contact->delete();
 
-        return redirect()->route('contact.index')->with('success', 'Contact deleted successfully!');
+    //     return redirect()->route('contact.index')->with('success', 'Contact deleted successfully!');
+    // }
+
+    public function destroy($id)
+    {
+        // Find the product by ID
+        $contact = Contact::find($id);
+
+        if (!$contact) {
+            return response()->json(['error' => 'Unable to locate the contact'], 404);
+        }
+
+        // Set the status to 0 (soft delete)
+        $contact->status = 0;
+        $contact->save();
+
+        return response()->json(['id' => $id]);
+    }
+
+    public function restore($id)
+    {
+        if (!in_array(Auth::user()->role, ['admin', 'user'])) {
+            abort(404); // Return a 404 error if user is unauthorized
+        }
+        $contact = Contact::findOrFail($id);
+        
+        // Check if the contact is already marked as deleted
+        if ($contact->status === 0) {
+            // Restore the contact by setting the status back to 1
+            $contact->status = 1;
+            $contact->save();
+        }
+
+        return response()->json(['success' => true]);
     }
 }

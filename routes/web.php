@@ -88,6 +88,8 @@ Route::get('/contacts', [ContactController::class, 'index'])->name('contact.inde
 Route::get('/contacts/{id}/edit', [ContactController::class, 'edit'])->name('contact.edit'); // Edit a specific contact
 Route::put('/contacts/{id}', [ContactController::class, 'update'])->name('contact.update'); // Update a specific contact
 Route::delete('/contact/{id}', [ContactController::class, 'destroy'])->name('contact.destroy');
+Route::post('/contact/{id}', [ContactController::class, 'restore'])->name('contact.restore');
+
 
 
 // Display all payments

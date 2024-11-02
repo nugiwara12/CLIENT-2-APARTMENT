@@ -47,19 +47,29 @@
                             <td class="px-6 py-4 border-b border-gray-300">{{ $contact->phone_number }}</td>
                             <td class="px-6 py-4 border-b border-gray-300">{{ $contact->message }}</td>
                             <td class="px-6 py-4 border-b border-gray-300 flex space-x-2 justify-center items-center">
+                                @if($contact->status === 1)
                                 <!-- Button to Open Modal -->
                                 <!-- <button type="button" class="bg-blue-600 text-white px34 py-2 rounded-md hover:bg-blue-700 focus:outline-none"
                                         data-bs-toggle="modal" data-bs-target="#editContactModal{{ $contact->id }}" title="Edit">
                                     <i class="bi bi-pencil-square"></i>
                                 </button> -->
-                                <form action="{{ route('contact.destroy', $contact->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this contact?');">
+                                <form id="deleteForm{{ $contact->id }}" action="{{ route('contact.destroy', $contact->id) }}" method="POST" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 focus:outline-none" title="Delete"><i class="bi bi-trash3"></i></button>
+                                    <button type="button" class="flex items-center justify-center w-8 h-8 rounded-full bg-red-600 text-white hover:bg-red-500" onclick="confirmDelete('{{ $contact->id }}')" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </form>
+                                @else
+                                <form id="restoreForm{{ $contact->id }}" action="{{ route('contact.restore', $contact->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="button" class="flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white hover:bg-green-500" onclick="confirmRestore('{{ $contact->id }}')" title="Restore">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </button>
+                                </form>
+                                @endif
                             </td>
                         </tr>
-
                         <!-- Edit Modal -->
                         <div class="modal fade" id="editContactModal{{ $contact->id }}" tabindex="-1" aria-labelledby="editContactModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
@@ -126,7 +136,75 @@
     </div>
 </x-app-layout>
 
+<!-- Include SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+function confirmDelete(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: $('#deleteForm' + id).attr('action'),
+                type: 'POST',
+                data: {
+                    _method: 'DELETE',
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    Swal.fire('Deleted!', 'Product deleted successfully!', 'success').then(() => {
+                        location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire('Error!', 'Error deleting product: ' + xhr.responseText, 'error');
+                }
+            });
+        }
+    });
+}
+
+function confirmRestore(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You want to restore this product?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, restore it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Get the specific form action URL
+            const form = document.getElementById('restoreForm' + id);
+            const actionUrl = form.getAttribute('action');
+
+            $.ajax({
+                url: actionUrl,
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    Swal.fire('Restored!', 'Product restored successfully!', 'success').then(() => {
+                        location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire('Error!', 'Error restoring product: ' + xhr.responseText, 'error');
+                }
+            });
+        }
+    });
+}
+
+
 function toggleResetButton() {
     const searchInput = document.getElementById('search');
     const resetButton = document.getElementById('reset-button');
