@@ -12,10 +12,23 @@ use Illuminate\Http\Request;
 class InquiryController extends Controller
 {
     // Display a listing of inquiries
-    public function index()
+    public function index(Request $request)
     {
-        $inquiries = Inquiry::all(); // Retrieve all inquiries
-        return view('inquiries.index', compact('inquiries')); // Pass inquiries to the view
+        // Get the search query
+        $search = $request->input('search');
+
+        // Get the number of entries per page
+        $entriesPerPage = $request->input('entries_per_page', 10); // Default to 10
+
+        // Retrieve inquiries with search functionality and pagination
+        $inquiries = Inquiry::when($search, function($query) use ($search) {
+                return $query->where('full_name', 'like', '%' . $search . '%')
+                            ->orWhere('contact_number', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%');
+            })
+            ->paginate($entriesPerPage); // Pagination
+
+        return view('inquiries.index', compact('inquiries', 'search', 'entriesPerPage'));
     }
 
     // Show the form for creating a new inquiry
