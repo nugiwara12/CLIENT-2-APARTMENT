@@ -124,4 +124,6 @@ Route::put('/payments/{id}', [PaymentController::class, 'update'])->name('paymen
 Route::delete('/payments/{id}', [PaymentController::class, 'destroy'])->name('payments.destroy');
 Route::get('/payments/{id}', [PaymentController::class, 'show'])->name('payments.show');
 Route::post('/payments/{id}', [PaymentController::class, 'restore'])->name('payments.restore');
+Route::get('/payments/sales-report', [PaymentController::class, 'generateSalesReport'])->name('payments.sales-report');
+
 

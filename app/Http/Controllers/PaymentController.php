@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use PDF;
 use Auth;
 
 class PaymentController extends Controller
@@ -88,8 +89,24 @@ class PaymentController extends Controller
         $pastDueCount = $pastDueDates->count();
 
         // Return view with existing data plus new pagination data and search query
-    return view('payment.index', compact('payments', 'paymentCount', 'paymentDates', 'dueTodayCount', 'dueDates', 'pastDueDates', 'pastDueCount', 'perPage', 'search'));
+        return view('payment.index', compact('payments', 'paymentCount', 'paymentDates', 'dueTodayCount', 'dueDates', 'pastDueDates', 'pastDueCount', 'perPage', 'search'));
     }
+
+    public function generateSalesReport(Request $request)
+    {
+        try {
+            $salesData = Payment::select('room_number', 'amount as price')
+                ->where('status', 1)
+                ->get();
+    
+            $pdf = PDF::loadView('payment.sales-report.pdf', ['salesData' => $salesData]);
+    
+            return $pdf->download('sales_report.pdf');
+        } catch (\Exception $e) {
+            \Log::error('Error generating sales report: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to generate sales report.');
+        }
+    }        
 
     // Show the form for creating a new payment
     public function create()

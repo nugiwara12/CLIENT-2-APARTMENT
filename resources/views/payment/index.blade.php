@@ -36,6 +36,16 @@
                     </a> -->
                     <!-- <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus"></i>Add Payment</button> -->
                 </form>
+<!-- Add this form wherever you'd like the button to appear -->
+<form action="{{ route('payments.sales-report') }}" method="GET">
+    <button type="submit" class="bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-cyan-600">
+        Download Sales Report
+    </button>
+</form>
+
+
+
+
             </div>
         </div>
 
