@@ -98,9 +98,9 @@
                 </div>
                 <div class="modal-body">
                     <ul>
-                        @foreach ($dueDates as $date)
-                            <li>{{ \Carbon\Carbon::parse($date)->format('F j, Y') }}</li>
-                        @endforeach
+                    @foreach ($dueDates as $date)
+                        <li>{{ htmlspecialchars($date->name) }} - {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}</li>
+                    @endforeach
                     </ul>
                 </div>
                 <div class="modal-footer">
@@ -121,9 +121,9 @@
                 </div>
                 <div class="modal-body">
                     <ul>
-                        @foreach($pastDueDates as $date)
-                            <li>{{ \Carbon\Carbon::parse($date)->format('F j, Y') }}</li>
-                        @endforeach
+                    @foreach($pastDueDates as $date)
+                        <li>{{ htmlspecialchars($date->name) }} - {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}</li>
+                    @endforeach
                     </ul>
                 </div>
                 <div class="modal-footer">
@@ -180,11 +180,23 @@
                         <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
                             <option disabled>Select one or more due dates</option>
                             @foreach($dueDates as $date)
-                                <option value="{{ $date }}">{{ $date }}</option>
+                                <option value="{{ $date->due_date }}">
+                                    @if(Auth::user()->role === 'admin')
+                                        {{ $date->name }} - 
+                                    @endif
+                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
+                                </option>
                             @endforeach
+
                             <option disabled>────── Past Due Dates ──────</option>
+
                             @foreach($pastDueDates as $date)
-                                <option value="{{ $date }}">{{ $date }}</option>
+                                <option value="{{ $date->due_date }}">
+                                    @if(Auth::user()->role === 'admin')
+                                        {{ $date->name }} - 
+                                    @endif
+                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -232,11 +244,23 @@
                         <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
                             <option disabled>Select one or more due dates</option>
                             @foreach($dueDates as $date)
-                                <option value="{{ $date }}">{{ $date }}</option>
+                                <option value="{{ $date->due_date }}">
+                                    @if(Auth::user()->role === 'admin')
+                                        {{ $date->name }} - 
+                                    @endif
+                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
+                                </option>
                             @endforeach
+
                             <option disabled>────── Past Due Dates ──────</option>
+
                             @foreach($pastDueDates as $date)
-                                <option value="{{ $date }}">{{ $date }}</option>
+                                <option value="{{ $date->due_date }}">
+                                    @if(Auth::user()->role === 'admin')
+                                        {{ $date->name }} - 
+                                    @endif
+                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -288,11 +312,23 @@
                         <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
                             <option disabled>Select one or more due dates</option>
                             @foreach($dueDates as $date)
-                                <option value="{{ $date }}">{{ $date }}</option>
+                                <option value="{{ $date->due_date }}">
+                                    @if(Auth::user()->role === 'admin')
+                                        {{ $date->name }} - 
+                                    @endif
+                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
+                                </option>
                             @endforeach
+
                             <option disabled>────── Past Due Dates ──────</option>
+
                             @foreach($pastDueDates as $date)
-                                <option value="{{ $date }}">{{ $date }}</option>
+                                <option value="{{ $date->due_date }}">
+                                    @if(Auth::user()->role === 'admin')
+                                        {{ $date->name }} - 
+                                    @endif
+                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
