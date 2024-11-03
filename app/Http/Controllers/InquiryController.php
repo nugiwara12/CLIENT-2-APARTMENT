@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inquiry;
-use Illuminate\Support\Facades\DB;
+use Db;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use App\Mail\ApprovedStatusUpdated;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
 class InquiryController extends Controller
@@ -28,17 +27,17 @@ class InquiryController extends Controller
     public function approved(Request $request, $id) {
         return $this->updateApprovedStatus($id, 'Approved', $request);
     }
-    
+
     private function updateApprovedStatus($id, $status, Request $request) {
-        $inquiry = Inquiry::findOrFail($id); // Find the inquiry instead of the user
-        $inquiry->inquiry_status = $status;
-        $inquiry->save();
-    
+        $user = User::find($id);
+        $user->inquiry_status = $status;
+        $user->save();
+
         // Send email to the buyer
-        Mail::to($inquiry->email)->send(new ApprovedStatusUpdated($inquiry));
-    
+        Mail::to($user->email)->send(new ApprovedStatusUpdated($user));
+
         return redirect()->back()->with('success', 'Approved status updated to ' . $status . ' and email sent!');
-    }    
+    }
 
     // Store a newly created inquiry in storage
     public function store(Request $request)

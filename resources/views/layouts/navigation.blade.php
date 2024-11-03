@@ -30,11 +30,11 @@
                         {{ __('Apertment Booking') }}
                     </x-nav-link>
                 </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <!-- <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('booking')" :active="request()->routeIs('booking')" class="no-underline hover:no-underline">
                         {{ __('Booking') }}
                     </x-nav-link>
-                </div>
+                </div> -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('rooms.index')" :active="request()->routeIs('rooms.index')" class="no-underline hover:no-underline">
                         {{ __('Available Rooms') }}
