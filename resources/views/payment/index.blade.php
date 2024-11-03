@@ -130,16 +130,17 @@
                                                     <option value="MAYA" {{ $payment->payment_method == 'MAYA' ? 'selected' : '' }}>MAYA</option>
                                                 </select>
                                             </div>
+                                             <!-- Due Date Dropdown -->
                                             <div class="mb-3">
                                                 <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
                                                 <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
                                                     <option disabled>Select one or more due dates</option>
                                                     @foreach($dueDates as $date)
-                                                        <option value="{{ $date }}" {{ is_array($payment->due_dates) && in_array($date, $payment->due_dates) ? 'selected' : '' }}>{{ $date }}</option>
+                                                        <option value="{{ $date }}">{{ $date }}</option>
                                                     @endforeach
                                                     <option disabled>────── Past Due Dates ──────</option>
                                                     @foreach($pastDueDates as $date)
-                                                        <option value="{{ $date }}" {{ is_array($payment->due_dates) && in_array($date, $payment->due_dates) ? 'selected' : '' }}>{{ $date }}</option>
+                                                        <option value="{{ $date }}">{{ $date }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
