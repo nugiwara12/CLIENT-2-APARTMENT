@@ -108,7 +108,7 @@
                                 </div>
 
                                 <!-- User Inquiry Form -->
-                                <form id="inquiryForm" action="{{ route('inquiry.store') }}" method="POST" enctype="multipart/form-data">
+                                <form id="inquiryForm" action="{{ route('inquiries.store') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div>
                                         <label class="text-sm font-semibold mb-2" for="price">Price</label>

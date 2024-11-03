@@ -94,15 +94,15 @@ Route::post('/contact/{id}', [ContactController::class, 'restore'])->name('conta
 
 
 // Inquiry Routes
-Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
-Route::get('/inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
-Route::get('/inquiries/{id}/edit', [InquiryController::class, 'edit'])->name('inquiries.edit');
-Route::put('/inquiries/{id}', [InquiryController::class, 'update'])->name('inquiries.update');
-Route::delete('/inquiries/{id}', [InquiryController::class, 'destroy'])->name('inquiries.destroy');
-Route::post('/inquiry/{id}', [InquiryController::class, 'restore'])->name('inquiry.restore');
-Route::post('inquirs/{id}/approved', [InquiryController::class, 'approved'])->name('inquiries.approved');
-
-
+Route::prefix('inquiries')->name('inquiries.')->group(function () {
+    Route::post('/', [InquiryController::class, 'store'])->name('store');
+    Route::get('/', [InquiryController::class, 'index'])->name('index');
+    Route::get('/{id}/edit', [InquiryController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [InquiryController::class, 'update'])->name('update');
+    Route::delete('/{id}', [InquiryController::class, 'destroy'])->name('destroy');
+    Route::post('/{id}/restore', [InquiryController::class, 'restore'])->name('restore');
+    Route::post('/{id}/approved', [InquiryController::class, 'approved'])->name('approved');
+});
 
 
 // Display all payments

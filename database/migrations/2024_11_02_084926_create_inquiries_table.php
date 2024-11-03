@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('contact_number');
             $table->string('email');
             $table->string('price');
-            $table->string('room_number')->unique();
+            $table->string('room_number');
             $table->string('valid_id')->nullable(); // To store the file path of the uploaded ID
             $table->boolean('agreement'); // Store agreement checkbox status
             $table->string('inquiry_status')->nullable();
