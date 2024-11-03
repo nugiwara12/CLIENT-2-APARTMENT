@@ -16,6 +16,7 @@ class CreatePaymentsTable extends Migration
             $table->string('qr_code');
             $table->string('payment_method'); // New field for payment method
             $table->json('due_date'); // To store multiple due dates as JSON
+            $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
     }

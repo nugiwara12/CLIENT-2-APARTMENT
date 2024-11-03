@@ -213,15 +213,43 @@ class PaymentController extends Controller
     public function destroy($id)
     {
         $payment = Payment::findOrFail($id);
-        
+    
         // Optionally delete the QR code file if it exists
         if ($payment->qr_code) {
             Storage::disk('public')->delete($payment->qr_code);
         }
-
-        $payment->delete();
-
+    
+        // Check if the user has the required role
+        if (!in_array(Auth::user()->role, ['admin', 'seller'])) {
+            abort(403); // Unauthorized
+        }
+    
+        // Set the payment's status to 0 instead of deleting it
+        $payment->status = 0; 
+        $payment->save(); // Save changes without deleting
+    
         return redirect()->back()->with('success', 'Payment info deleted successfully!');
+    }
+    
+    public function restore($id)
+    {
+        // Check if the user has the required role
+        if (!in_array(Auth::user()->role, ['admin', 'seller'])) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
+        }
+        
+        $payment = Payment::findOrFail($id);
+        
+        // Check if the Payment is marked as deleted (status is 0)
+        if ($payment->status === 0) {
+            // Restore the payment by setting the status back to 1
+            $payment->status = 1;
+            $payment->save();
+        
+            return response()->json(['success' => true, 'message' => 'Payment restored successfully!']);
+        }
+    
+        return response()->json(['success' => false, 'message' => 'Payment is not deleted or already restored.']);
     }
 
     // Handle image upload and return the path

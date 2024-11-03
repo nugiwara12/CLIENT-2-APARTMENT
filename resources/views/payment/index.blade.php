@@ -74,8 +74,9 @@
                             <td class="px-6 py-4 border-b border-gray-300">
                                 <img src="{{ asset('storage/' . $payment->qr_code) }}" alt="Proof of Billing" class="h-10">
                             </td>
-                            <td class="py-3 px-6 flex space-x-2 justify-center items-center">
-                                <!-- Button triggers for edit modal -->
+                            <td class="py-3 flex space-x-2 justify-center items-center">
+                                <!-- Edit Button -->
+                                @if($payment->status === 1)
                                 <button class="bg-yellow-500 text-white px-3 py-2 rounded-md hover:bg-yellow-600 focus:outline-none"
                                         data-bs-toggle="modal" data-bs-target="#editModal"
                                         data-full-name="{{ $payment->full_name }}"
@@ -87,11 +88,26 @@
                                         data-payment-id="{{ $payment->id }}">
                                         <i class="bi bi-pencil-square"></i>
                                 </button>
-                                <form action="{{ route('payments.destroy', $payment->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this payment?');">
+
+                                <!-- Delete Button with SweetAlert Confirmation -->
+                                <form id="deleteForm{{ $payment->id }}" action="{{ route('payments.destroy', $payment->id) }}" method="POST" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 focus:outline-none"><i class="bi bi-trash3"></i></button>
+                                    <button type="button" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 focus:outline-none"
+                                            onclick="confirmDelete('{{ $payment->id }}')">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
                                 </form>
+                                @else
+                                <!-- Restore Button with SweetAlert Confirmation -->
+                                <form id="restoreForm{{ $payment->id }}" action="{{ route('payments.restore', $payment->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="button" class="flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white hover:bg-green-500"
+                                            onclick="confirmRestore('{{ $payment->id }}')" title="Restore">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </button>
+                                </form>
+                                @endif
                             </td>
                         </tr>
                         <!-- Edit Modal -->
@@ -261,7 +277,61 @@
     </div>
 </x-app-layout>
 
+<!-- Include SweetAlert Script -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // Delete confirmation
+    function confirmDelete(paymentId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to undo this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Submit the delete form
+                document.getElementById(`deleteForm${paymentId}`).submit();
+            }
+        });
+    }
+
+    // Restore confirmation
+    function confirmRestore(paymentId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You want to restore this payment?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, restore it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Submit the restore form
+                fetch(document.getElementById(`restoreForm${paymentId}`).action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Restored!', data.message, 'success').then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error!', data.message, 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Error!', 'An error occurred.', 'error'));
+            }
+        });
+    }
+
     // Preview image function
     function previewImage(event, previewId) {
         const file = event.target.files[0];
