@@ -8,44 +8,31 @@
         @if(session('success'))
             <div id="successMessage" class="bg-green-500 text-white p-2 rounded mb-4">{{ session('success') }}</div>
         @endif
-        <div class="text-right mb-1">
-            <div class="mr-4">
-                <form method="GET" action="{{ route('payments.index') }}" class="relative justify-between flex items-center space-x-2 py-2">
-                    <!-- Search Input -->
-                    <div class="relative flex items-center w-full max-w-md">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <i class="bi bi-search text-gray-500"></i>
-                        </div>
-                        <input type="text" id="search" name="search" value="{{ request('search') }}"
-                            class="block w-70 pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm transition duration-150 ease-in-out hover:border-blue-400"
-                            placeholder="SEARCH" oninput="toggleResetButton()" />
-
-                        <!-- Reset Button Inside Input -->
-                        <a href="{{ route('payments.index') }}" id="reset-button" class="absolute inset-y-0 right-52 flex items-center pr-3 text-gray-500 hover:text-blue-500 hidden">
-                            <i class="bi bi-x-circle"></i>
-                        </a>
+        <div class="flex justify-between items-center mb-1">
+            <!-- Search Form -->
+            <form method="GET" action="{{ route('payments.index') }}" class="relative flex items-center space-x-2 w-full max-w-md">
+                <!-- Search Input -->
+                <div class="relative flex items-center w-full max-w-md">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="bi bi-search text-gray-500"></i>
                     </div>
+                    <input type="text" id="search" name="search" value="{{ request('search') }}"
+                        class="block w-70 pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm transition duration-150 ease-in-out hover:border-blue-400"
+                        placeholder="SEARCH" oninput="toggleResetButton()" />
 
-                    <button type="button" class="btn btn-primary whitespace-nowrap" data-toggle="modal" data-target="#createModal">
-                        <i class="bi bi-plus"></i> Add Payment
-                    </button>
-                    <!-- <a href="{{ route('payments.create') }}">
-                        <button type="button" class="btn btn-primary whitespace-nowrap" data-toggle="modal" data-target="#createModal">
-                            <i class="bi bi-plus"></i> Add Payment
-                        </button>
-                    </a> -->
-                    <!-- <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus"></i>Add Payment</button> -->
-                </form>
-<!-- Add this form wherever you'd like the button to appear -->
-<form action="{{ route('payments.sales-report') }}" method="GET">
-    <button type="submit" class="bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-cyan-600">
-        Download Sales Report
-    </button>
-</form>
+                    <!-- Reset Button Inside Input -->
+                    <a href="{{ route('payments.index') }}" id="reset-button" class="absolute inset-y-0 right-52 flex items-center pr-3 text-gray-500 hover:text-blue-500 hidden">
+                        <i class="bi bi-x-circle"></i>
+                    </a>
+                </div>
+            </form>
 
-
-
-
+            <!-- Right-side Actions -->
+            <div class="flex items-center space-x-2">
+                <button type="button" class="btn btn-primary whitespace-nowrap" data-toggle="modal" data-target="#createModal">
+                    <i class="bi bi-plus"></i> Add Payment
+                </button>
+                <x-sales.filter-date />
             </div>
         </div>
 

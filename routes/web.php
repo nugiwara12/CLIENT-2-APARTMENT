@@ -13,6 +13,7 @@ use App\Http\Controllers\AboutController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\SalesReportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -124,6 +125,6 @@ Route::put('/payments/{id}', [PaymentController::class, 'update'])->name('paymen
 Route::delete('/payments/{id}', [PaymentController::class, 'destroy'])->name('payments.destroy');
 Route::get('/payments/{id}', [PaymentController::class, 'show'])->name('payments.show');
 Route::post('/payments/{id}', [PaymentController::class, 'restore'])->name('payments.restore');
-Route::get('/payments/sales-report', [PaymentController::class, 'generateSalesReport'])->name('payments.sales-report');
+Route::get('/sales-report', [SalesReportController::class, 'generateSalesReport'])->name('sales.report');
 
 
