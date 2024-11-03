@@ -7,6 +7,7 @@ use App\Models\Payment;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Http\Controllers\Auth\UserManagementController;
+use Auth;
 
 class DashboardController extends Controller
 {
@@ -26,23 +27,26 @@ class DashboardController extends Controller
 
         // Retrieve the count of users with due dates set for today or in the future
         $today = Carbon::today();
-        $dueTodayCount = User::whereDate('due_date', '>=', $today)->count();
-
+        $dueTodayCount = User::where('id', Auth::id())
+                            ->whereDate('due_date', '>=', $today)
+                            ->count();
         // Retrieve all upcoming due dates, including today
-        $dueDates = User::whereDate('due_date', '>=', $today)
+        $dueDates = User::where('id', Auth::id())
+                        ->whereDate('due_date', '>=', $today)
                         ->orderBy('due_date')
                         ->pluck('due_date')
                         ->map(function ($date) {
                             return Carbon::parse($date)->format('Y-m-d');
                         });
 
-        // Fetch only the past due dates
-        $pastDueDates = User::where('is_past_due', true)
-            ->orderByDesc('due_date')
-            ->pluck('due_date')
-            ->map(function ($date) {
-                return Carbon::parse($date)->format('Y-m-d');
-            });
+        // Fetch only the past due dates for the authenticated user
+        $pastDueDates = User::where('id', Auth::id())
+                            ->where('is_past_due', true)
+                            ->orderByDesc('due_date')
+                            ->pluck('due_date')
+                            ->map(function ($date) {
+                                return Carbon::parse($date)->format('Y-m-d');
+                            });
 
         // Count of past due dates
         $pastDueCount = $pastDueDates->count();

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Auth\UserManagementController;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Auth\UserManagementController;
+use Auth;
 
 class PaymentController extends Controller
 {
@@ -34,10 +36,13 @@ class PaymentController extends Controller
         $paymentDates = Payment::pluck('created_at')->map(function ($date) {
             return $date->format('Y-m-d');
         });
-
+        $userId = auth()->id();
         $today = Carbon::today();
-        $dueTodayCount = User::whereDate('due_date', '>=', $today)->count();
-        $dueDates = User::whereDate('due_date', '>=', $today)
+        $dueTodayCount = User::where('id', Auth::id())
+                            ->whereDate('due_date', '>=', $today)
+                            ->count();
+         $dueDates = User::where('id', Auth::id())
+                        ->whereDate('due_date', '>=', $today)
                         ->orderBy('due_date')
                         ->pluck('due_date')
                         ->map(function ($date) {
@@ -45,7 +50,8 @@ class PaymentController extends Controller
                         });
 
         // Fetch only the past due dates
-        $pastDueDates = User::where('is_past_due', true)
+        $pastDueDates = User::where('id', Auth::id())
+                            ->where('is_past_due', true)
                             ->orderByDesc('due_date')
                             ->pluck('due_date')
                             ->map(function ($date) {
@@ -61,7 +67,41 @@ class PaymentController extends Controller
     // Show the form for creating a new payment
     public function create()
     {
-        return view('payment.create');
+
+        // Existing code for past due status and other counts remains as it is
+        $userManagement = new UserManagementController();
+        $userManagement->updatePastDueStatus();
+        
+        $paymentCount = Payment::count();
+        $paymentDates = Payment::pluck('created_at')->map(function ($date) {
+            return $date->format('Y-m-d');
+        });
+        $userId = auth()->id();
+        $today = Carbon::today();
+        $dueTodayCount = User::where('id', Auth::id())
+                            ->whereDate('due_date', '>=', $today)
+                            ->count();
+         $dueDates = User::where('id', Auth::id())
+                        ->whereDate('due_date', '>=', $today)
+                        ->orderBy('due_date')
+                        ->pluck('due_date')
+                        ->map(function ($date) {
+                            return Carbon::parse($date)->format('Y-m-d');
+                        });
+
+        // Fetch only the past due dates
+        $pastDueDates = User::where('id', Auth::id())
+                            ->where('is_past_due', true)
+                            ->orderByDesc('due_date')
+                            ->pluck('due_date')
+                            ->map(function ($date) {
+                                return Carbon::parse($date)->format('Y-m-d');
+                            });
+
+        $pastDueCount = $pastDueDates->count();
+
+        // Return view with existing data plus new pagination data and search query
+        return view('payment.create', compact('paymentCount', 'paymentDates', 'dueTodayCount', 'dueDates', 'pastDueDates', 'pastDueCount'));
     }
 
     // Store function to create a new payment record
@@ -81,6 +121,7 @@ class PaymentController extends Controller
         $qrCodePath = $this->handleImageUpload($request->file('qr_code'), 'qr_codes');
 
         Payment::create([
+            'user_id' => Auth::id(),
             'full_name' => $request->input('full_name'),
             'phone_number' => $request->input('phone_number'),
             'amount' => $request->input('amount'),

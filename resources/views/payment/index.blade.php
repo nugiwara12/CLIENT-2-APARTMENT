@@ -29,6 +29,11 @@
                     <button type="button" class="btn btn-primary whitespace-nowrap" data-toggle="modal" data-target="#createModal">
                         <i class="bi bi-plus"></i> Add Payment
                     </button>
+                    <!-- <a href="{{ route('payments.create') }}">
+                        <button type="button" class="btn btn-primary whitespace-nowrap" data-toggle="modal" data-target="#createModal">
+                            <i class="bi bi-plus"></i> Add Payment
+                        </button>
+                    </a> -->
                     <!-- <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal"><i class="bi bi-plus"></i>Add Payment</button> -->
                 </form>
             </div>
