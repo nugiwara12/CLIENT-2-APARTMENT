@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -25,28 +26,60 @@ class DashboardController extends Controller
             return $date->format('Y-m-d');
         });
 
-        // Retrieve the count of users with due dates set for today or in the future
+        // Get today's date
         $today = Carbon::today();
-        $dueTodayCount = User::where('id', Auth::id())
-                            ->whereDate('due_date', '>=', $today)
-                            ->count();
-        // Retrieve all upcoming due dates, including today
-        $dueDates = User::where('id', Auth::id())
-                        ->whereDate('due_date', '>=', $today)
-                        ->orderBy('due_date')
-                        ->pluck('due_date')
-                        ->map(function ($date) {
-                            return Carbon::parse($date)->format('Y-m-d');
-                        });
 
-        // Fetch only the past due dates for the authenticated user
-        $pastDueDates = User::where('id', Auth::id())
-                            ->where('is_past_due', true)
-                            ->orderByDesc('due_date')
+        // Check if the user has the admin role
+        $isAdmin = Auth::user()->role === 'admin';
+
+        // Initialize dueTodayCount
+        $dueTodayCount = 0;
+
+        // Prepare variables for due dates and past due dates
+        $dueDates = collect();
+        $pastDueDates = collect();
+
+        if ($isAdmin) {
+            // Admin can see all upcoming due dates
+            $dueTodayCount = User::whereDate('due_date', '>=', $today)->count();
+            $dueDates = User::whereDate('due_date', '>=', $today)
+                            ->orderBy('due_date')
                             ->pluck('due_date')
                             ->map(function ($date) {
                                 return Carbon::parse($date)->format('Y-m-d');
                             });
+
+            // Fetch all past due dates
+            $pastDueDates = User::where('is_past_due', true)
+                                ->orderByDesc('due_date')
+                                ->pluck('due_date')
+                                ->map(function ($date) {
+                                    return Carbon::parse($date)->format('Y-m-d');
+                                });
+        } else {
+            // Regular users can only see their own due dates
+            $dueTodayCount = User::where('id', Auth::id())
+                                ->whereDate('due_date', '>=', $today)
+                                ->count();
+
+            // Retrieve the upcoming due dates for the authenticated user
+            $dueDates = User::where('id', Auth::id())
+                            ->whereDate('due_date', '>=', $today)
+                            ->orderBy('due_date')
+                            ->pluck('due_date')
+                            ->map(function ($date) {
+                                return Carbon::parse($date)->format('Y-m-d');
+                            });
+
+            // Fetch only the past due dates for the authenticated user
+            $pastDueDates = User::where('id', Auth::id())
+                                ->where('is_past_due', true)
+                                ->orderByDesc('due_date')
+                                ->pluck('due_date')
+                                ->map(function ($date) {
+                                    return Carbon::parse($date)->format('Y-m-d');
+                                });
+        }
 
         // Count of past due dates
         $pastDueCount = $pastDueDates->count();

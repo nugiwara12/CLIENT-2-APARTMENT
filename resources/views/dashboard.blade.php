@@ -4,6 +4,26 @@
             {{ __('Dashboard') }}
         </h2>
     </x-slot>
+    @if(session('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '{{ session('success') }}',
+        });
+    </script>
+@endif
+
+@if(session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops!',
+            text: '{{ session('error') }}',
+        });
+    </script>
+@endif
+
 
     <div class="py-12">
         <div class="max-w-full mx-auto sm:px-6 lg:px-8">

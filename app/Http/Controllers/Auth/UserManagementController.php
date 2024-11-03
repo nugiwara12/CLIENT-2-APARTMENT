@@ -142,7 +142,7 @@ class UserManagementController extends Controller
         if ($user->due_date && (Carbon::parse($user->due_date)->isToday() || Carbon::parse($user->due_date)->isFuture())) {
             // Increment payment count
             $user->payment_count += 1;
-            $user->due_date = Carbon::parse($user->due_date)->addDays(28)->toDateString(); 
+            $user->due_date = Carbon::parse($user->due_date)->addMonth()->day(28)->toDateString(); 
             $user->is_past_due = false; // Reset past due status
             $user->save();
 
