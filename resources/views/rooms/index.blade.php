@@ -8,13 +8,19 @@
     <div class="py-2">
         <div class="max-w-full mx-auto sm:px-4 lg:px-6">
             <div class="py-4">
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @elseif (session('error'))
-                    <div class="alert alert-danger">
-                        {{ session('error') }}
+                @if(session('success'))
+                    <div id="successMessage" class="bg-green-500 text-white p-2 rounded mb-4">{{ session('success') }}</div>
+                @endif
+
+                @if(session('error'))
+                    <div id="errorMessage" class="bg-red-500 text-white p-2 rounded mb-4">{{ session('error') }}</div>
+                @endif
+
+                @if($errors->any())
+                    <div id="errorMessage" class="bg-red-500 text-white p-2 rounded mb-4">
+                        @foreach($errors->all() as $error)
+                            <p>{{ $error }}</p>
+                        @endforeach
                     </div>
                 @endif
             </div>
@@ -374,5 +380,35 @@
                 resetButton.classList.add('hidden'); // Hide the reset button
             }
         }
+        // Preview image function
+        function previewImage(event, previewId) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const preview = document.getElementById(previewId);
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+        window.onload = function() {
+            const fadeOut = (element) => {
+                if (!element) return;
+                setTimeout(() => {
+                    element.style.transition = "opacity 0.5s ease";
+                    element.style.opacity = 0;
+                    setTimeout(() => {
+                        element.style.display = 'none';
+                    }, 500); // Matches the CSS transition duration
+                }, 3000); // 3 seconds delay before fading
+            };
+
+            fadeOut(document.getElementById('successMessage'));
+            fadeOut(document.getElementById('errorMessage'));
+        };
     </script>
 </x-app-layout>
