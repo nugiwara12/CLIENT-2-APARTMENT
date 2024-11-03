@@ -56,7 +56,7 @@
                                 {{ $slot->agreement == 1 ? 'YES' : 'NO' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-black">
-                                <span class="{{ $slot->inquiry_status === 'pending' ? 'bg-yellow-500 text-black px-2 py-1 rounded' : ($slot->inquiry_status === 'successful' ? 'bg-green-500 text-white px-2 py-1 rounded' : 'text-black') }}">
+                                <span class="{{ $slot->inquiry_status === 'pending' ? 'bg-yellow-500 text-black px-2 py-1 rounded' : ($slot->inquiry_status === 'Approved' ? 'bg-green-500 text-white px-2 py-1 rounded' : 'text-black') }}">
                                     {{ $slot->inquiry_status }}
                                 </span>
                             </td>
@@ -68,7 +68,7 @@
                                         <button type="button" onclick="confirmAction('approveForm{{ $slot->id }}', 'Approved')" 
                                                 class="flex items-center justify-center w-10 h-10 text-white bg-gray-600 hover:bg-gray-500 rounded-full focus:outline-none" 
                                                 title="Mark as Approved">
-                                            <i class="bi bi-chat-square-dots text-lg"></i>
+                                                <i class="bi bi-envelope-paper text-lg"></i>
                                         </button>
                                     </form>
 
