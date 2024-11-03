@@ -100,7 +100,7 @@ class UserManagementController extends Controller
 
         $user = User::findOrFail($id);
         $user->due_date = $request->due_date;
-        $user->reminder_status = 'Notices';
+        $user->reminder_status = 'Peninding';
         $user->save();
 
         return redirect()->route('usermanagement')->with('success', 'Due date set successfully');
