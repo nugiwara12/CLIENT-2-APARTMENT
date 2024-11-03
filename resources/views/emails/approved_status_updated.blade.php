@@ -35,9 +35,18 @@
 </head>
 <body>
     <div class="container">
-        <h1>Tenant Reminder</h1>
-        <h3>Hi {{ $inquiries->full_name }},</h3>
-        <p>mada mada dane</p>
+        <h1>Application Approved</h1>
+        <h3>Dear {{ $inquiries->full_name }},</h3>
+        <p>We are pleased to inform you that your application has been successfully approved. Our team has reviewed your submission, and we are excited to welcome you as a part of our community.</p>
+        
+        <p>Please note that your account is currently being set up. Once your account is fully activated, you will receive a confirmation email containing all necessary login information and instructions for accessing your profile.</p>
+        
+        <p>We appreciate your patience as we finalize these arrangements, and we look forward to supporting you in your journey with us.</p>
+        
+        <p>Should you have any questions in the meantime, please do not hesitate to reach out to our support team at <span class="highlight">digiapart13@gmail.com</span>.</p>
+        
+        <p>Sincerely,</p>
+        <p>MABALACAT DORM: A WEB APPLICATION FOR ENHANCED TENANT MONITORING AND MANAGEMENT</p>
     </div>
 </body>
 </html>

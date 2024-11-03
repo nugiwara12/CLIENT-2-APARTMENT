@@ -59,7 +59,6 @@
                         <select id="role" name="role" class="block mt-1 w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                             <option value="" disabled selected>{{ __('Select Role') }}</option>
                             <option value="admin">{{ __('Admin') }}</option>
-                            <option value="tenant">{{ __('Tenant') }}</option>
                             <option value="User">{{ __('User') }}</option>
                         </select>
                         <x-input-error :messages="$errors->get('role')" class="text-red-500 text-sm mt-2" />
