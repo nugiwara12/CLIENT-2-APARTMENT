@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Inquiry;
 use Db;
+use Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ApprovedStatusUpdated;
@@ -157,16 +158,47 @@ class InquiryController extends Controller
     // Remove the specified inquiry from storage
     public function destroy($id)
     {
-        $inquiry = Inquiry::findOrFail($id); // Find the inquiry by ID or fail
-
+        // Find the inquiry by ID or fail
+        $inquiry = Inquiry::findOrFail($id);
+    
+        // Check if the user is authorized
+        if (!in_array(Auth::user()->role, ['admin', 'seller'])) {
+            abort(403); // Return a 403 error if user is unauthorized
+        }
+    
+        // Set the inquiry's status to 0 instead of deleting it
+        $inquiry->status = 0; // Mark as deleted
+    
         // Delete the file if it exists
         if ($inquiry->valid_id) {
             \Storage::disk('public')->delete($inquiry->valid_id);
         }
-
-        $inquiry->delete(); // Delete the inquiry
-
+    
+        $inquiry->save(); // Save the inquiry with updated status
+    
         // Redirect back with a success message
         return redirect()->route('inquiries.index')->with('success', 'Inquiry deleted successfully.');
+    }    
+
+    public function restore($id)
+    {
+        if (!in_array(Auth::user()->role, ['admin', 'users'])) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
+        }
+        
+        $inquiry = Inquiry::findOrFail($id);
+        
+        // Check if the inquiry is already marked as deleted
+        if ($inquiry->status === 0) {
+            // Restore the inquiry by setting the status back to 1
+            $inquiry->status = 1;
+            $inquiry->save();
+
+            // Return success response without session message
+            return response()->json(['success' => true]);
+        }
+
+        // Return error response if the inquiry is not deleted
+        return response()->json(['success' => false, 'message' => 'Inquiry is not deleted or already restored.']);
     }
 }

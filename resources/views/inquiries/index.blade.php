@@ -107,7 +107,7 @@
                                             </button>
                                         </form>
                                         @else
-                                        <form id="restoreForm{{ $slot->id }}" action="{{ route('slotmanagement.restore', $slot->id) }}" method="POST" style="display: inline;">
+                                        <form id="restoreForm{{ $slot->id }}" action="{{ route('inquiries.restore', $slot->id) }}" method="POST" style="display: inline;">
                                             @csrf
                                             <button type="button" class="flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white hover:bg-green-500" onclick="confirmRestore('{{ $slot->id }}')" title="Restore">
                                                 <i class="bi bi-arrow-clockwise"></i>
@@ -117,7 +117,6 @@
                                     </div>    
                                 </td>
                             </tr>
-
                             <!-- Edit Modal -->
                             <div class="modal fade" id="editInquiryModal{{ $slot->id }}" tabindex="-1" aria-labelledby="editInquiryLabel{{ $slot->id }}" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered" role="document">
@@ -177,7 +176,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             @endforeach
                         </tbody>
                     </table>
@@ -235,7 +233,30 @@ function confirmRestore(id) {
         confirmButtonText: 'Yes, restore it!'
     }).then((result) => {
         if (result.isConfirmed) {
-            document.getElementById('restoreForm' + id).submit();
+            // Use Fetch API or AJAX to submit the form
+            fetch(document.getElementById('restoreForm' + id).action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({}) // Send any necessary data
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Restored!', 'Inquiry restored successfully!', 'success')
+                    .then(() => {
+                        // Reload the page to reflect the changes
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire('Error!', data.message || 'Something went wrong.', 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error!', 'Could not restore inquiry.', 'error');
+            });
         }
     });
 }
@@ -297,4 +318,34 @@ function toggleResetButton() {
         resetButton.classList.add('hidden'); // Hide the reset button
     }
 }
+
+// Preview image function
+function previewImage(event, previewId) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const preview = document.getElementById(previewId);
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+    }
+
+    if (file) {
+        reader.readAsDataURL(file);
+    }
+}
+window.onload = function() {
+    const successMessage = document.getElementById('successMessage');
+    if (successMessage) {
+        // Set a timeout to fade out the message after 3 seconds
+        setTimeout(() => {
+            successMessage.style.transition = "opacity 0.5s ease";
+            successMessage.style.opacity = 0;
+            // Remove the message from the DOM after fading out
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 500); // 500ms should match the duration of the CSS transition
+        }, 3000); // 3 seconds
+    }
+};
 </script>

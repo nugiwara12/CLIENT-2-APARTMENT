@@ -36,7 +36,7 @@
 <body>
     <div class="container">
         <h1>Tenant Reminder</h1>
-        <h3>Hi {{ $inquiry->name }},</h3>
+        <h3>Hi {{ $inquiries->full_name }},</h3>
         <p>mada mada dane</p>
     </div>
 </body>

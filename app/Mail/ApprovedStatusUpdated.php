@@ -16,16 +16,16 @@ class ApprovedStatusUpdated extends Mailable
     /**
      * Create a new message instance.
      */
-    public $inquiry;
-    public function __construct($inquiry)
+    public $inquiries;
+    public function __construct($inquiries)
     {
-        $this->inquiry = $inquiry;
+        $this->inquiries = $inquiries;
     }
 
     public function build()
     {
         return $this->view('emails.approved_status_updated')
-                    ->with(['inquiry' => $this->inquiry]);
+                    ->with(['inquiries' => $this->inquiries]);
     }
 
     /**
