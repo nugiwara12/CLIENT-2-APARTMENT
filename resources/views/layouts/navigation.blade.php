@@ -26,6 +26,11 @@
 
                 <!-- Navigation Links Of Booking Tenant -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('inquiries.index')" :active="request()->routeIs('inquiries.index')" class="no-underline hover:no-underline">
+                        {{ __('Apertment Booking') }}
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('booking')" :active="request()->routeIs('booking')" class="no-underline hover:no-underline">
                         {{ __('Booking') }}
                     </x-nav-link>

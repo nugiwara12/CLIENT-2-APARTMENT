@@ -10,14 +10,15 @@ class Inquiry extends Model
     use HasFactory;
 
     protected $fillable = [
-        'price',
-        'room_number',
         'full_name',
         'contact_number',
         'email',
+        'price',
+        'room_number',
         'valid_id',
         'agreement',
         'inquiry_status',
+        'status',
     ];
 }
 
