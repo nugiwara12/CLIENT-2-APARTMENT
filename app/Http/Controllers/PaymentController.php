@@ -59,31 +59,33 @@ class PaymentController extends Controller
             // Admin can see all upcoming due dates
             $dueTodayCount = User::whereDate('due_date', '>=', $today)->count();
             $dueDates = User::whereDate('due_date', '>=', $today)
-                    ->orderBy('due_date')
-                    ->get(['name', 'due_date']); // Get both name and due_date
-
+                            ->orderBy('due_date')
+                            ->pluck('due_date'); // Get only due_date values directly
+        
             // Fetch all past due dates
             $pastDueDates = User::where('is_past_due', true)
                                 ->orderByDesc('due_date')
-                                ->get(['name', 'due_date']); 
+                                ->pluck('due_date'); // Get only due_date values directly
         } else {
-           // Regular users can only see their own due dates
+            // Regular users can only see their own due dates
             $dueTodayCount = User::where('id', Auth::id())
                                 ->whereDate('due_date', '>=', $today)
                                 ->count();
-
+        
             // Retrieve upcoming due dates for the authenticated user
             $dueDates = User::where('id', Auth::id())
                             ->whereDate('due_date', '>=', $today)
                             ->orderBy('due_date')
-                            ->get(['name', 'due_date']); // Get both name and due_date
-
+                            ->pluck('due_date'); // Get only due_date values directly
+        
             // Retrieve past due dates for the authenticated user
             $pastDueDates = User::where('id', Auth::id())
                                 ->where('is_past_due', true)
                                 ->orderByDesc('due_date')
-                                ->get(['name', 'due_date']); 
+                                ->pluck('due_date'); // Get only due_date values directly
         }
+        
+        
 
         // Count of past due dates
         $pastDueCount = $pastDueDates->count();
@@ -140,22 +142,27 @@ class PaymentController extends Controller
             'phone_number' => 'required|string|max:11',
             'amount' => 'required|numeric',
             'qr_code' => 'required|file|mimes:png,jpg,jpeg|max:2048',
-            'payment_method' => 'required|string|max:255', // Validate payment method
+            'payment_method' => 'nullable|string|max:255', // Validate payment method
+            'reasons' => 'nullable|string|max:255', // New field, not required
             'due_date' => 'required|array', // Validate due_date as an array
             'due_date.*' => 'string|date_format:Y-m-d', // Optional: Validate each due date format if needed
+           
         ]);
 
         // Save the QR code and create the payment record
         $qrCodePath = $this->handleImageUpload($request->file('qr_code'), 'qr_codes');
 
-        Payment::create([
+        // Create the payment record
+        $payment = Payment::create([
             'user_id' => Auth::id(),
             'full_name' => $request->input('full_name'),
             'phone_number' => $request->input('phone_number'),
             'amount' => $request->input('amount'),
             'qr_code' => $qrCodePath,
             'payment_method' => $request->input('payment_method'),
+            'reasons' => $request->input('reasons'),
             'due_date' => json_encode($request->input('due_date')), // Store due dates as JSON
+            
         ]);
 
         // Update the user payment status
@@ -163,9 +170,22 @@ class PaymentController extends Controller
         $userManagementController = new UserManagementController();
         $userManagementController->processDueDatePayment($userId);
         $userManagementController->processPastDueDatePayment($userId);
+        
+        $pdf = PDF::loadView('receipts.payment', compact('payment'));
+        $pdfPath = 'receipts/receipt_' . $payment->id . '.pdf';
+        $pdf->save(public_path($pdfPath)); // Save the PDF to the public directory
+    
+        // Update the payment record with the PDF path
+        $payment->update(['receipt_path' => $pdfPath]);
 
-        return redirect()->back()->with('success', 'Payment info submitted successfully!');
+        // Redirect back with success message and receipt link
+        return redirect()->back()->with([
+            'success' => 'Payment processed successfully!',
+        ]);
     }
+
+
+
 
     // Show function to view a specific payment record
     public function show($id)
@@ -184,9 +204,10 @@ class PaymentController extends Controller
             'phone_number' => 'required|string|max:11',
             'amount' => 'required|numeric',
             'qr_code' => 'nullable|file|mimes:png,jpg,jpeg|max:2048',
-            'payment_method' => 'required|string|max:255', // Validate payment method
+            'payment_method' => 'nullable|string|max:255', // Validate payment method
             'due_date' => 'required|array', // Validate due_date as an array
             'due_date.*' => 'string|date_format:Y-m-d', // Optional: Validate each due date format if needed
+            'reasons' => 'nullable|string|max:255',
         ]);
 
         // Update QR code if a new file is uploaded
@@ -205,6 +226,7 @@ class PaymentController extends Controller
         $payment->amount = $request->input('amount');
         $payment->payment_method = $request->input('payment_method'); // Update payment method
         $payment->due_date = json_encode($request->input('due_date'));
+        $payment->reasons = $request->input('reasons');
         $payment->save();
 
         return redirect()->back()->with('success', 'Payment info updated successfully!');

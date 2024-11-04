@@ -50,6 +50,7 @@ Route::controller(UserManagementController::class)->prefix('usermanagement')->gr
     Route::delete('{id}', 'destroy')->name('usermanagement.destroy');
     Route::post('restore/{id}', 'restore')->name('usermanagement.restore'); // Add restore route here
     Route::put('/usermanagement/{id}/setDueDate', [UserManagementController::class, 'setDueDate'])->name('usermanagement.setDueDate');
+
 });
 
 Route::post('reminder/{id}/reminder', [UserManagementController::class, 'reminder'])->name('reminder.reminder');
@@ -120,6 +121,7 @@ Route::get('/payments/{id}/edit', [PaymentController::class, 'edit'])->name('pay
 
 // Update an existing payment record
 Route::put('/payments/{id}', [PaymentController::class, 'update'])->name('payments.update');
+Route::get('payments/success', [PaymentController::class, 'success'])->name('payment.success');
 
 // Delete a specific payment record
 Route::delete('/payments/{id}', [PaymentController::class, 'destroy'])->name('payments.destroy');

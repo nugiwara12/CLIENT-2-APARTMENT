@@ -17,6 +17,8 @@ class Payment extends Model
         'due_date',
         'amount',
         'status',
+        'receipt_path',
+        'reasons',
     ];
     protected $casts = [
         'due_date' => 'array',

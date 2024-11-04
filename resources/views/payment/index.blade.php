@@ -247,9 +247,11 @@
                             <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
                                 <option disabled>Select one or more due dates</option>
                                 @foreach($dueDates as $date)
-                                <option value="{{ $date }}">{{ $date }}</option>
+                                    <option value="{{ $date }}">{{ $date }}</option>
                                 @endforeach
+
                                 <option disabled>────── Past Due Dates ──────</option>
+
                                 @foreach($pastDueDates as $date)
                                     <option value="{{ $date }}">{{ $date }}</option>
                                 @endforeach
