@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Payment;
 use PDF;
+use Carbon\Carbon;
 
 class SalesReportController extends Controller
 {
@@ -25,8 +26,8 @@ class SalesReportController extends Controller
                 break;
             default:
                 // Handle custom date range if not using predefined filters
-                $startDate = $request->input('start_date');
-                $endDate = $request->input('end_date');
+                $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date')) : now()->startOfDay();
+                $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date')) : now()->endOfDay();
                 break;
         }
 

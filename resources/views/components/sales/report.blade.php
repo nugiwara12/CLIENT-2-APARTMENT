@@ -26,9 +26,6 @@
             font-weight: bold;
             margin-bottom: 16px;
         }
-        p {
-            margin-bottom: 16px;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -49,10 +46,13 @@
         tr:hover {
             background-color: #e2e8f0;
         }
-        .total-revenue {
-            margin-top: 20px;
-            font-size: 18px;
+        .total-row {
             font-weight: bold;
+            background-color: #edf2f7;
+        }
+        .total-cell {
+            text-align: right;
+            padding-right: 16px;
         }
     </style>
 </head>
@@ -61,13 +61,11 @@
     <h1>MABALACAT DORM: SALES REPORT</h1>
 
     <!-- Sales Table -->
-    <div>
     <table>
         <thead>
             <tr>
                 <th>#</th>
                 <th>Full Name</th>
-                <th>Room Number</th>
                 <th>Total Revenue</th>
             </tr>
         </thead>
@@ -76,17 +74,16 @@
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $payment->full_name }}</td>
-                <td>₱ {{ number_format($payment->amount, 2) }}</td>
+                <td>{{ number_format($payment->amount, 2) }}</td>
             </tr>
             @endforeach
+            <!-- Total Revenue Row -->
+            <tr class="total-row">
+                <td colspan="2" class="total-cell">Overall Total</td>
+                <td>Php: {{ number_format($totalRevenue, 2) }}</td>
+            </tr>
         </tbody>
     </table>
-
-    <!-- Total Revenue Display -->
-    <div class="total-revenue">
-        <p>Total Revenue: ₱ {{ number_format($totalRevenue, 2) }}</p>
-    </div>
-</div>
 </div>
 </body>
 </html>
