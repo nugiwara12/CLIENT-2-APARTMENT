@@ -156,207 +156,84 @@
         </div>
     </div>
 
-    <div class="min-w-screen min-h-screen flex items-center justify-center px-5 pb-10 pt-16">
-        <div class="flex flex-col md:flex-row justify-between gap-4 w-full mx-auto">
+    <div class="min-h-screen flex items-center justify-center pt-16 pb-10">
+        <div class="w-full max-w-xl mx-auto rounded-lg bg-white shadow-lg p-6 text-gray-700">
             <!-- First Form for Gcash -->
-            <div class="w-full md:w-full mx-auto rounded-lg bg-white shadow-lg p-5 text-gray-700">
-                <form action="{{ route('payments.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="w-full pt-1 pb-5">
-                        <div class="bg-indigo-500 text-white overflow-hidden rounded-full w-20 h-20 -mt-20 mx-auto shadow-lg flex justify-center items-center">
-                            <i class="bi bi-wallet2 text-4xl"></i>
-                        </div>
+            <form action="{{ route('payments.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="w-full pt-1 pb-5">
+                    <div class="bg-indigo-500 text-white overflow-hidden rounded-full w-20 h-20 -mt-20 mx-auto shadow-lg flex justify-center items-center">
+                        <i class="bi bi-wallet2 text-4xl"></i>
                     </div>
-                    <h1 class="text-center font-bold text-xl uppercase">Secure payment info for Gcash</h1>
+                </div>
+                <h1 class="text-center font-bold text-xl uppercase">Secure payment info for Gcash</h1>
+                <div class="flex flex-row items-center justify-center space-x-4">
                     <div class="flex flex-col items-center justify-center">
                         <label for="gcash" class="flex items-center cursor-pointer mb-2">
                             <img src="{{ asset('assets/images/qr-code.png') }}" alt="GCash Logo" class="h-40">
                         </label>
                         <label for="gcash_number" class="text-center">095654245165</label>
                     </div>
-                    <!-- Due Date Dropdown -->
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
-                        <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
-                            <option disabled>Select one or more due dates</option>
-                            @foreach($dueDates as $date)
-                                <option value="{{ $date->due_date }}">
-                                    @if(Auth::user()->role === 'admin')
-                                        {{ $date->name }} - 
-                                    @endif
-                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
-                                </option>
-                            @endforeach
-
-                            <option disabled>────── Past Due Dates ──────</option>
-
-                            @foreach($pastDueDates as $date)
-                                <option value="{{ $date->due_date }}">
-                                    @if(Auth::user()->role === 'admin')
-                                        {{ $date->name }} - 
-                                    @endif
-                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Full Name</label>
-                        <input name="full_name" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter your Full Name" type="text" required/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Phone Number (Gcash Registered)</label>
-                        <input name="phone_number" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter your Phone Number" type="text" required/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Payment Method</label>
-                        <input name="payment_method" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" type="text" value="GCASH" readonly/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Amount</label>
-                        <input name="amount" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter Amount" type="number" required/>
-                    </div>
-                    <div class="mb-10">
-                        <label class="font-bold text-sm mb-2 ml-1">Upload Proof of Billing</label>
-                        <input name="qr_code" type="file" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" required />
-                    </div>
-                    <button type="submit" class="block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold">
-                        <i class="mdi mdi-lock-outline mr-1"></i> PAY NOW
-                    </button>
-                </form>
-            </div>
-
-            <!-- Personal Payment Form -->
-            <div class="w-full md:w-full mx-auto rounded-lg bg-white shadow-lg p-5 text-gray-700">
-                <form action="{{ route('payments.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="w-full pt-1 pb-5">
-                        <div class="bg-indigo-500 text-white overflow-hidden rounded-full w-20 h-20 -mt-20 mx-auto shadow-lg flex justify-center items-center">
-                            <i class="bi bi-cash-stack text-4xl"></i>
-                        </div>
-                    </div>
-                    <h1 class="text-center font-bold text-xl uppercase">Secure Payment Information</h1>
-                    <div class="flex flex-col items-center justify-center">
-                        <label for="payment_method" class="text-center">Personal Payment Method</label>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
-                        <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
-                            <option disabled>Select one or more due dates</option>
-                            @foreach($dueDates as $date)
-                                <option value="{{ $date->due_date }}">
-                                    @if(Auth::user()->role === 'admin')
-                                        {{ $date->name }} - 
-                                    @endif
-                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
-                                </option>
-                            @endforeach
-
-                            <option disabled>────── Past Due Dates ──────</option>
-
-                            @foreach($pastDueDates as $date)
-                                <option value="{{ $date->due_date }}">
-                                    @if(Auth::user()->role === 'admin')
-                                        {{ $date->name }} - 
-                                    @endif
-                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Full Name</label>
-                        <input name="full_name" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter Your Full Name" type="text" required/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Phone Number</label>
-                        <input name="phone_number" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter Your Phone Number" type="text" required/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Payment Method</label>
-                        <input name="payment_method" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" type="text" value="Personal Payment" readonly/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Amount</label>
-                        <input name="amount" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter Amount" type="number" required/>
-                    </div>
-                    <div class="mb-10">
-                        <label class="font-bold text-sm mb-2 ml-1">Reason</label>
-                        <textarea name="proof_of_payment" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter details or paste the URL of the proof" required rows="4"></textarea>
-                    </div>
-                    <button type="submit" class="block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold">
-                        <i class="mdi mdi-lock-outline mr-1"></i> PAY NOW
-                    </button>
-                </form>
-            </div>
-
-            <!-- Third Form for Maya -->
-            <div class="w-full md:w-full mx-auto rounded-lg bg-white shadow-lg p-5 text-gray-700">
-                <form action="{{ route('payments.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="w-full pt-1 pb-5">
-                        <div class="bg-indigo-500 text-white overflow-hidden rounded-full w-20 h-20 -mt-20 mx-auto shadow-lg flex justify-center items-center">
-                            <i class="bi bi-wallet2 text-4xl"></i>
-                        </div>
-                    </div>
-                    <h1 class="text-center font-bold text-xl uppercase">Secure payment info for Maya</h1>
                     <div class="flex flex-col items-center justify-center">
                         <label for="maya" class="flex items-center cursor-pointer mb-2">
-                            <img src="{{ asset('assets/images/qr-code-maya.png') }}" alt="Maya Logo" class="h-40">
+                            <img src="{{ asset('assets/images/qr-code.png') }}" alt="Maya Logo" class="h-40">
                         </label>
                         <label for="maya_number" class="text-center">095654245165</label>
                     </div>
-                    <!-- Due Date Dropdown -->
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
-                        <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
-                            <option disabled>Select one or more due dates</option>
-                            @foreach($dueDates as $date)
-                                <option value="{{ $date->due_date }}">
-                                    @if(Auth::user()->role === 'admin')
-                                        {{ $date->name }} - 
-                                    @endif
-                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
-                                </option>
-                            @endforeach
-
-                            <option disabled>────── Past Due Dates ──────</option>
-
-                            @foreach($pastDueDates as $date)
-                                <option value="{{ $date->due_date }}">
-                                    @if(Auth::user()->role === 'admin')
-                                        {{ $date->name }} - 
-                                    @endif
-                                    {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Full Name</label>
-                        <input name="full_name" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter your Full Name" type="text" required/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Phone Number (Maya Registered)</label>
-                        <input name="phone_number" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter your Phone Number" type="text" required/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Payment Method</label>
-                        <input name="payment_method" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" type="text" value="MAYA" readonly/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="font-bold text-sm mb-2 ml-1">Amount Paid</label>
-                        <input name="amount" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter Amount" type="number" required/>
-                    </div>
-                    <div class="mb-10">
-                        <label class="font-bold text-sm mb-2 ml-1">Upload Proof of Payment</label>
-                        <input name="proof_of_payment" type="file" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" required />
-                    </div>
-                    <button type="submit" class="block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold">
-                        <i class="mdi mdi-lock-outline mr-1"></i> PAY NOW
-                    </button>
-                </form>
-            </div>
+                </div>
+                <!-- Due Date Dropdown -->
+                <div class="mb-3">
+                    <label class="font-bold text-sm mb-2 ml-1">Select Due Date</label>
+                    <select name="due_date[]" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" multiple required size="5">
+                        <option disabled>Select one or more due dates</option>
+                        @foreach($dueDates as $date)
+                            <option value="{{ $date->due_date }}">
+                                @if(Auth::user()->role === 'admin')
+                                    {{ $date->name }} - 
+                                @endif
+                                {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
+                            </option>
+                        @endforeach
+                        <option disabled>────── Past Due Dates ──────</option>
+                        @foreach($pastDueDates as $date)
+                            <option value="{{ $date->due_date }}">
+                                @if(Auth::user()->role === 'admin')
+                                    {{ $date->name }} - 
+                                @endif
+                                {{ \Carbon\Carbon::parse($date->due_date)->format('F j, Y') }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="font-bold text-sm mb-2 ml-1">Full Name</label>
+                    <input name="full_name" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter your Full Name" type="text" required/>
+                </div>
+                <div class="mb-3">
+                    <label class="font-bold text-sm mb-2 ml-1">Phone Number (Gcash Registered)</label>
+                    <input name="phone_number" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter your Phone Number" type="text" required/>
+                </div>
+                <div class="mb-3">
+                    <label class="font-bold text-sm mb-2 ml-1">Payment Method</label>
+                    <select name="payment_method" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" required>
+                        <option value="" disabled selected>Select a Payment Method</option>
+                        <option value="GCASH">GCASH</option>
+                        <option value="MAYA">MAYA</option>
+                        <option value="PERSONAL PAYMENT">PERSONAL PAYMENT</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="font-bold text-sm mb-2 ml-1">Amount</label>
+                    <input name="amount" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter Amount" type="number" required/>
+                </div>
+                <div class="mb-10">
+                    <label class="font-bold text-sm mb-2 ml-1">Upload Proof of Billing</label>
+                    <input name="qr_code" type="file" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" required />
+                </div>
+                <button type="submit" class="block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold">
+                    <i class="mdi mdi-lock-outline mr-1"></i> PAY NOW
+                </button>
+            </form>
         </div>
     </div>
 
