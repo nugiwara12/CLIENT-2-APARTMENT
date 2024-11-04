@@ -166,16 +166,18 @@
             <h1 class="text-center font-bold text-xl uppercase">Secure payment info for Gcash</h1>
             <div class="flex flex-row items-center justify-center space-x-4">
                 <div class="flex flex-col items-center justify-center">
+                    <label for="gcash" class="text-md font-bold">GCASH</label>
                     <label for="gcash" class="flex items-center cursor-pointer mb-2">
-                        <img src="{{ asset('assets/images/qr-code.png') }}" alt="GCash Logo" class="h-40">
+                        <img src="{{ asset('admin_assets/assets/images/qr-code/gcash.png') }}" alt="Gcash Logo" class="h-40">
                     </label>
-                    <label for="gcash_number" class="text-center">095654245165</label>
+                    <label for="gcash_number" class="text-center"><strong>095654245165</strong></label>
                 </div>
                 <div class="flex flex-col items-center justify-center">
+                    <label for="maya" class="text-md font-bold">MAYA</label>
                     <label for="maya" class="flex items-center cursor-pointer mb-2">
-                        <img src="{{ asset('assets/images/qr-code.png') }}" alt="Maya Logo" class="h-40">
+                        <img src="{{ asset('admin_assets/assets/images/qr-code/maya.png') }}" alt="Maya Logo" class="h-40">
                     </label>
-                    <label for="maya_number" class="text-center">095654245165</label>
+                    <label for="maya_number" class="text-center"><strong>09687546225</strong></label>
                 </div>
             </div>
             <!-- Due Date Dropdown -->
