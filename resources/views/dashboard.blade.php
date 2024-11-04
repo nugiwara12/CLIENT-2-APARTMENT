@@ -176,12 +176,14 @@
             @endif
         </div>
     </div>
+    <br>
+    <br>
     @if(session('success'))
     <div id="success-message" class="bg-green-500 text-white p-4 rounded mb-4 w-full max-w-md mx-auto text-center">
         {{ session('success') }}
     </div>
     @endif
-
+    <br>
     <div class="min-w-screen min-h-screen flex items-center justify-center px-5 pb-10 pt-16">
         <div class="flex flex-col md:flex-row justify-between gap-4 w-full mx-auto">
             <!-- First Form for Gcash -->
