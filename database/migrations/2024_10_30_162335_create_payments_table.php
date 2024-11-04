@@ -18,7 +18,7 @@ class CreatePaymentsTable extends Migration
             $table->json('due_date'); // To store multiple due dates as JSON
             $table->tinyInteger('status')->default(1);
             $table->string('receipt_path')->nullable();
-            $table->string('reason')->nullable();
+            $table->string('reasons')->nullable();
             $table->timestamps();
         });
     }
