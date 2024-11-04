@@ -18,12 +18,24 @@ class DashboardController extends Controller
         $userManagement = new UserManagementController();
         $userManagement->updatePastDueStatus();
 
-        // Retrieve the payment count
-        $paymentCount = Payment::count();
+        $isAdmin = Auth::user()->role === 'admin';
 
-        // Retrieve and format payment dates
-        $paymentDates = Payment::pluck('created_at')->map(function ($date) {
-            return $date->format('Y-m-d');
+        $payments = Payment::when(!$isAdmin, function ($query) {
+            $query->where('id', Auth::id()); // Limit to the authenticated user's payments
+        })
+        ->orderBy('created_at', 'desc')
+        ->get(['id', 'full_name', 'created_at', 'amount', 'receipt_path']);
+    
+        // Count the number of payments based on the filtered results
+        $paymentCount = $payments->count();
+        
+        // Format payment dates and include full names for display
+        $paymentDates = $payments->map(function ($payment) {
+            return [
+                'name' => $payment->full_name,
+                'date' => $payment->created_at->format('Y-m-d'),
+                'receipt_path' => $payment->receipt_path, // Include receipt_path if needed
+            ];
         });
 
         // Get today's date
@@ -73,6 +85,6 @@ class DashboardController extends Controller
         $pastDueCount = $pastDueDates->count();
 
         // Pass all the collected data to the dashboard view
-        return view('dashboard', compact('paymentCount', 'paymentDates', 'dueTodayCount', 'dueDates', 'pastDueDates', 'pastDueCount'));
+        return view('dashboard', compact('payments', 'paymentCount', 'paymentDates', 'dueTodayCount', 'dueDates', 'pastDueDates', 'pastDueCount'));
     }
 }

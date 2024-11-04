@@ -13,10 +13,12 @@ class CreatePaymentsTable extends Migration
             $table->string('full_name');
             $table->string('phone_number');
             $table->decimal('amount', 10, 2);
-            $table->string('qr_code');
+            $table->string('qr_code')->nullable();
             $table->string('payment_method'); // New field for payment method
             $table->json('due_date'); // To store multiple due dates as JSON
             $table->tinyInteger('status')->default(1);
+            $table->string('receipt_path')->nullable();
+            $table->string('reason')->nullable();
             $table->timestamps();
         });
     }

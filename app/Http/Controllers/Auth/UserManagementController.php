@@ -105,6 +105,7 @@ class UserManagementController extends Controller
 
         return redirect()->route('usermanagement')->with('success', 'Due date set successfully');
     }
+    
     public function pastDue()
     {
         // Get users with due dates that have passed
