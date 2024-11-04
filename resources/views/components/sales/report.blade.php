@@ -17,13 +17,16 @@
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
         h1 {
             font-size: 24px;
             font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .date-range {
+            font-size: 16px;
+            color: #4a5568;
             margin-bottom: 16px;
         }
         table {
@@ -59,6 +62,10 @@
 <body>
 <div class="container">
     <h1>MABALACAT DORM: SALES REPORT</h1>
+    <!-- Date Range -->
+    <p class="date-range">
+        Report Period: {{ date('F j, Y', strtotime($startDate)) }} - {{ date('F j, Y', strtotime($endDate)) }}
+    </p>
 
     <!-- Sales Table -->
     <table>
@@ -74,7 +81,7 @@
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $payment->full_name }}</td>
-                <td>{{ number_format($payment->amount, 2) }}</td>
+                <td>Php: {{ number_format($payment->amount, 2) }}</td>
             </tr>
             @endforeach
             <!-- Total Revenue Row -->
