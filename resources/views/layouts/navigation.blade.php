@@ -18,6 +18,7 @@
                 </div>
 
                 <!-- Navigation Links Of Usermanagement -->
+                @if (Auth::user()->role=='admin')
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('usermanagement')" :active="request()->routeIs('usermanagement')" class="no-underline hover:no-underline">
                         {{ __('Usermanagement') }}
@@ -51,6 +52,7 @@
                     </x-nav-link>
                 </div>
             </div>
+            @endif
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
@@ -68,7 +70,7 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
+                        <x-dropdown-link :href="route('profile.edit')" class="no-underline hover:no-underline">
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
@@ -76,7 +78,7 @@
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
-                            <x-dropdown-link :href="route('logout')"
+                            <x-dropdown-link :href="route('logout')" class="no-underline hover:no-underline"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
                                 {{ __('Log Out') }}
