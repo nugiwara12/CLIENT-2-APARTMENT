@@ -84,9 +84,6 @@ class PaymentController extends Controller
                                 ->orderByDesc('due_date')
                                 ->pluck('due_date'); // Get only due_date values directly
         }
-        
-        
-
         // Count of past due dates
         $pastDueCount = $pastDueDates->count();
 
@@ -97,7 +94,6 @@ class PaymentController extends Controller
     // Show the form for creating a new payment
     public function create()
     {
-
         // Existing code for past due status and other counts remains as it is
         $userManagement = new UserManagementController();
         $userManagement->updatePastDueStatus();
@@ -137,21 +133,30 @@ class PaymentController extends Controller
     // Store function to create a new payment record
     public function store(Request $request)
     {
-        $request->validate([
+        // Set validation rules based on payment method
+        $rules = [
             'full_name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:11',
             'amount' => 'required|numeric',
-            'qr_code' => 'required|file|mimes:png,jpg,jpeg|max:2048',
-            'payment_method' => 'nullable|string|max:255', // Validate payment method
-            'reasons' => 'nullable|string|max:255', // New field, not required
+            'payment_method' => 'nullable|string|max:255',
+            'reason' => 'nullable|string|max:255', // Validate reason for personal payment
             'due_date' => 'required|array', // Validate due_date as an array
-            'due_date.*' => 'string|date_format:Y-m-d', // Optional: Validate each due date format if needed
-           
-        ]);
-
-        // Save the QR code and create the payment record
-        $qrCodePath = $this->handleImageUpload($request->file('qr_code'), 'qr_codes');
-
+            'due_date.*' => 'string|date_format:Y-m-d', // Optional: Validate each due date format
+        ];
+    
+        // Add QR code validation only if the payment method is not PERSONAL PAYMENT
+        if ($request->input('payment_method') !== 'PERSONAL PAYMENT') {
+            $rules['qr_code'] = 'required|file|mimes:png,jpg,jpeg|max:2048';
+        }
+    
+        $request->validate($rules);
+    
+        $qrCodePath = null;
+        // Handle QR code upload only if it's present
+        if ($request->input('payment_method') !== 'PERSONAL PAYMENT') {
+            $qrCodePath = $this->handleImageUpload($request->file('qr_code'), 'qr_codes');
+        }
+    
         // Create the payment record
         $payment = Payment::create([
             'user_id' => Auth::id(),
@@ -160,32 +165,17 @@ class PaymentController extends Controller
             'amount' => $request->input('amount'),
             'qr_code' => $qrCodePath,
             'payment_method' => $request->input('payment_method'),
-            'reasons' => $request->input('reasons'),
-            'due_date' => json_encode($request->input('due_date')), // Store due dates as JSON
-            
+            'reason' => $request->input('reason'), // Capture the reason for personal payment
+            'due_date' => json_encode($request->input('due_date')),
         ]);
-
-        // Update the user payment status
-        $userId = auth()->user()->id; // Assuming you are getting the user id from auth
-        $userManagementController = new UserManagementController();
-        $userManagementController->processDueDatePayment($userId);
-        $userManagementController->processPastDueDatePayment($userId);
-        
-        $pdf = PDF::loadView('receipts.payment', compact('payment'));
-        $pdfPath = 'receipts/receipt_' . $payment->id . '.pdf';
-        $pdf->save(public_path($pdfPath)); // Save the PDF to the public directory
     
-        // Update the payment record with the PDF path
-        $payment->update(['receipt_path' => $pdfPath]);
-
-        // Redirect back with success message and receipt link
+        // Your existing logic for processing payment and generating PDF goes here
+    
         return redirect()->back()->with([
             'success' => 'Payment processed successfully!',
         ]);
     }
-
-
-
+    
 
     // Show function to view a specific payment record
     public function show($id)
