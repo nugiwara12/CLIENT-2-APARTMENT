@@ -98,7 +98,7 @@
             </tr>
             <tr class="items">
                 <td>
-                    ${{ number_format($payment->amount, 2) }}
+                    Php{{ number_format($payment->amount, 2) }}
                 </td>
                 <td>
                     {{ $payment->created_at->format('F j, Y') }}

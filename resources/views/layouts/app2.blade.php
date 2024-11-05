@@ -64,7 +64,7 @@
                             <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}">HOME</a></li>
                             <li><a href="{{ route('booking.forms') }}" class="{{ request()->is('booking-forms') ? 'active' : '' }}">RENT APARTMENT</a></li>
                             <li><a href="{{ route('nav-contents.about_us') }}" class="{{ request()->is('nav-contents.about_us') ? 'active' : '' }}">ABOUT US</a></li>
-                            <li><a href="#contact-form" class="{{ request()->is('#contact-form') ? 'active' : '' }}">CONTACT US</a></li>
+                            <!-- <li><a href="#contact-form" class="{{ request()->is('#contact-form') ? 'active' : '' }}">CONTACT US</a></li> -->
                             @if(Auth::check())
                                 <!-- Display user name and email if logged in -->
                                 <li class="px-2">

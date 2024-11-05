@@ -170,7 +170,13 @@ class PaymentController extends Controller
         ]);
     
         // Your existing logic for processing payment and generating PDF goes here
+        $pdf = PDF::loadView('receipts.payment', compact('payment'));
+        $pdfPath = 'receipts/receipt_' . $payment->id . '.pdf';
+        $pdf->save(public_path($pdfPath)); // Save the PDF to the public directory
     
+        // Update the payment record with the PDF path
+        $payment->update(['receipt_path' => $pdfPath]);
+        
         return redirect()->back()->with([
             'success' => 'Payment processed successfully!',
         ]);
