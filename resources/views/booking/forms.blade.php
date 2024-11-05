@@ -2,6 +2,13 @@
 
 @section('contents')
 
+<style>
+    .fade-out {
+        opacity: 0;
+        transition: opacity 1s ease-out;
+    }
+</style>
+
 <!-- ***** Preloader Start ***** -->
 <div id="js-preloader" class="js-preloader">
     <div class="preloader-inner">
@@ -33,7 +40,10 @@
                 <a class="is_active" href="#!" data-filter="*">APARTMENTS AVAILABLE</a>
             </li>
         </ul>
-         <div class="row"> <!-- Row for horizontal alignment -->
+        @if(session('success'))
+            <div id="successMessage" class="bg-green-500 text-white p-2 rounded mb-4">{{ session('success') }}</div>
+        @endif
+        <div class="row"> <!-- Row for horizontal alignment -->
             @foreach($rooms as $room)
                 @if($room->available) 
                 <div class="col-md-4 mb-4">
@@ -52,9 +62,11 @@
                         <div class="main-button mt-4">
                             <!-- Inquire Button -->
                             <button class="bg-orange-600 text-white px-4 py-2 rounded-md" data-toggle="modal" data-target="#inquireModal{{ $room->id }}" onclick="resetModal({{ $room->id }})">Inquire</button>
-                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Inquiry Modal -->
                 <div class="modal fade" id="inquireModal{{ $room->id }}" tabindex="-1" aria-labelledby="inquireModalLabel{{ $room->id }}" aria-hidden="true">
                     <div class="modal-dialog modal-md modal-dialog-centered">
                         <div class="modal-content bg-white rounded-lg shadow-lg">
@@ -113,31 +125,31 @@
                                     <div>
                                         <label class="text-sm font-semibold mb-2" for="price">Price</label>
                                         <input type="text" id="price" name="price" value="{{ number_format($room->price, 2) }}" required class="bg-gray-200 border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter price" readonly />
-                                        <span id="priceError" class="text-red-500 mt-1 text-sm"></span> <!-- Display error here if needed -->
+                                        <span id="priceError" class="text-red-500 mt-1 text-sm"></span>
                                     </div>
 
                                     <div>
                                         <label class="text-sm font-semibold mb-2" for="room_number">Room Number</label>
                                         <input type="text" id="room_number" name="room_number" value="{{ $room['room_number'] }}" required class="bg-gray-200 border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter event room_number" readonly>
-                                        <span id="RoomNumberError" class="text-red-500 mt-1 text-sm"></span> <!-- Display error here if needed -->
+                                        <span id="RoomNumberError" class="text-red-500 mt-1 text-sm"></span>
                                     </div>
 
                                     <div>
                                         <label class="text-sm font-semibold mb-2" for="full_name">Full Name</label>
                                         <input type="text" id="full_name" name="full_name" required class="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter your full name">
-                                        <span id="fullNameError" class="text-red-500 mt-1 text-sm"></span> <!-- Display error here if needed -->
+                                        <span id="fullNameError" class="text-red-500 mt-1 text-sm"></span>
                                     </div>
 
                                     <div>
                                         <label class="text-sm font-semibold mb-2" for="contact_number">Contact Number</label>
                                         <input type="text" id="contact_number" name="contact_number" required class="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter your contact number">
-                                        <span id="contactNumberError" class="text-red-500 mt-1 text-sm"></span> <!-- Display error here if needed -->
+                                        <span id="contactNumberError" class="text-red-500 mt-1 text-sm"></span>
                                     </div>
 
                                     <div>
                                         <label class="text-sm font-semibold mb-2" for="email">Email Address</label>
                                         <input type="email" id="email" name="email" required class="border border-gray-300 rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Enter your email address">
-                                        <span id="emailError" class="text-red-500 mt-1 text-sm"></span> <!-- Display error here if needed -->
+                                        <span id="emailError" class="text-red-500 mt-1 text-sm"></span>
                                     </div>
 
                                     <!-- Valid ID Upload Field -->
@@ -146,19 +158,17 @@
                                         <input name="valid_id" type="file" class="w-full px-3 py-2 mb-1 border-2 border-gray-200 rounded-md focus:outline-none focus:border-indigo-500 transition-colors" required />
                                     </div>
 
-                                    <div class="max-w-full mx-auto py-2">
-                                        <div class="flex items-center space-x-2">
-                                            <input type="checkbox" id="agreementCheckbox" name="agreement" class="mr-1" required>
-                                            <label for="agreementCheckbox" class="text-sm">I agree to the terms and conditions. By using our service, you agree to our terms and conditions. Please read them carefully. I agree to the terms and conditions for the 1-month deposit and 1-month advance.</label>
-                                        </div>
+                                    <div>
+                                        <label class="text-sm font-semibold mb-2" for="agreement">
+                                            <input type="checkbox" id="agreement" name="agreement" required class="mr-2">I agree to the terms and conditions
+                                        </label>
+                                        <span id="agreementError" class="text-red-500 mt-1 text-sm"></span>
                                     </div>
 
-                                    <div class="modal-footer border-t p-4 flex justify-between">
-                                        <button type="submit" id="submitBtn" class="bg-orange-600 text-white rounded-md px-4 py-2 hover:bg-orange-700">Submit</button>
+                                    <div class="modal-footer mt-4">
+                                        <button type="submit" class="bg-orange-600 text-white rounded-md px-4 py-2 hover:bg-orange-700">Submit Inquiry</button>
                                     </div>
                                 </form>
-                                <div id="ajaxResponse" class="text-red-500 mt-1"></div> <!-- Display errors here -->
-
                             </div>
                         </div>
                     </div>
@@ -169,54 +179,20 @@
     </div>
 </div>
 
-
-<!-- Bootstrap CSS -->
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script>
-// Event listener to reset modal on hide
-$('#inquireModal').on('hidden.bs.modal', function () {
-    resetModal(); // Call the reset function when the modal is closed
-});
+    // Fade out success message after 4 seconds
+    setTimeout(() => {
+        const successMessage = document.getElementById('successMessage');
+        if (successMessage) {
+            successMessage.classList.add('fade-out');
+            setTimeout(() => successMessage.remove(), 1000); // Remove the element after fading out
+        }
+    }, 2000);
 
-
-$(document).ready(function() {
-    $('#inquiryForm').on('submit', function(event) {
-        event.preventDefault(); // Prevent the default form submission
-
-        // Clear previous response messages
-        $('#ajaxResponse').html('');
-
-        // Gather form data
-        let formData = new FormData(this);
-
-        $.ajax({
-            url: $(this).attr('action'), // Form action URL
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                $('#ajaxResponse').html('<span class="text-green-500">' + response.message + '</span>'); // Display success message
-                $('#inquireModal').modal('hide'); // Optionally hide the modal
-                // Reset form fields if necessary
-                $('#inquiryForm')[0].reset();
-            },
-            error: function(xhr) {
-                // Handle validation errors
-                let errors = xhr.responseJSON.errors;
-                let errorMessage = '';
-                if (errors) {
-                    $.each(errors, function(key, value) {
-                        errorMessage += value[0] + '<br>'; // Concatenate error messages
-                    });
-                } else {
-                    errorMessage = 'An unexpected error occurred. Please try again.';
-                }
-                $('#ajaxResponse').html(errorMessage); // Display error messages
-            }
-        });
-    });
-});
+    function resetModal(roomId) {
+        document.getElementById('inquiryForm').reset();
+        document.getElementById('agreement').checked = false;
+        document.querySelectorAll('.text-red-500').forEach(el => el.textContent = ''); // Clear error messages
+    }
 </script>
 @endsection

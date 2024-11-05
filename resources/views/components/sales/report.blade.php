@@ -17,16 +17,16 @@
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
         h1 {
             font-size: 24px;
             font-weight: bold;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
         }
-        p {
+        .date-range {
+            font-size: 16px;
+            color: #4a5568;
             margin-bottom: 16px;
         }
         table {
@@ -49,25 +49,30 @@
         tr:hover {
             background-color: #e2e8f0;
         }
-        .total-revenue {
-            margin-top: 20px;
-            font-size: 18px;
+        .total-row {
             font-weight: bold;
+            background-color: #edf2f7;
+        }
+        .total-cell {
+            text-align: right;
+            padding-right: 16px;
         }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>MABALACAT DORM: SALES REPORT</h1>
+    <!-- Date Range -->
+    <p class="date-range">
+        Report Period: {{ date('F j, Y', strtotime($startDate)) }} - {{ date('F j, Y', strtotime($endDate)) }}
+    </p>
 
     <!-- Sales Table -->
-    <div>
     <table>
         <thead>
             <tr>
                 <th>#</th>
                 <th>Full Name</th>
-                <th>Room Number</th>
                 <th>Total Revenue</th>
             </tr>
         </thead>
@@ -76,17 +81,16 @@
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $payment->full_name }}</td>
-                <td>₱ {{ number_format($payment->amount, 2) }}</td>
+                <td>Php: {{ number_format($payment->amount, 2) }}</td>
             </tr>
             @endforeach
+            <!-- Total Revenue Row -->
+            <tr class="total-row">
+                <td colspan="2" class="total-cell">Overall Total</td>
+                <td>Php: {{ number_format($totalRevenue, 2) }}</td>
+            </tr>
         </tbody>
     </table>
-
-    <!-- Total Revenue Display -->
-    <div class="total-revenue">
-        <p>Total Revenue: ₱ {{ number_format($totalRevenue, 2) }}</p>
-    </div>
-</div>
 </div>
 </body>
 </html>

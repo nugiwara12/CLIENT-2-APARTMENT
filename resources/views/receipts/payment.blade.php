@@ -72,9 +72,7 @@
             </td>
         </tr>
     </table>
-    <div>
-        <h1 class="title">Resibo</h1>
-    </div>
+ 
     <div class="margin-top">
         <table class="w-full">
             <tr>
