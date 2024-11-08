@@ -75,15 +75,15 @@
                                         {{ Auth::user()->name }}
                                     </div>
                                 </li>
+                            @else
+                                <!-- Show Sign In link if not logged in -->
+                                <li>
+                                    <a href="{{ route('login') }}" class="{{ request()->is('login') ? 'active' : '' }}">
+                                        <i class="bi bi-person-circle"></i> SIGN IN
+                                    </a>
+                                </li>
                             @endif
-                            <!-- Show Sign In link if not logged in -->
-                            <li>
-                                <a href="{{ route('login') }}" class="{{ request()->is('login') ? 'active' : '' }}">
-                                    <i class="bi bi-person-circle"></i> SIGN IN
-                                </a>
-                            </li>
                         </ul>
-
                         <!-- Mobile Menu Trigger -->
                         <a class="menu-trigger">
                             <span>Menu</span>
