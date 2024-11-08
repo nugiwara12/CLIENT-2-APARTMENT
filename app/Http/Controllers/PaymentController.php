@@ -168,6 +168,11 @@ class PaymentController extends Controller
             'reason' => $request->input('reason'), // Capture the reason for personal payment
             'due_date' => json_encode($request->input('due_date')),
         ]);
+        
+        $userId = auth()->user()->id; // Assuming you are getting the user id from auth
+        $userManagementController = new UserManagementController();
+        $userManagementController->processDueDatePayment($userId);
+        $userManagementController->processPastDueDatePayment($userId);
     
         // Your existing logic for processing payment and generating PDF goes here
         $pdf = PDF::loadView('receipts.payment', compact('payment'));
