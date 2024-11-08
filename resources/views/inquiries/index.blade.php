@@ -277,47 +277,6 @@ function confirmAction(formId, action) {
     });
 }
 
-// function validateContactNumber(input) {
-//     const feedback = document.getElementById('contactNumberFeedback{{ $slot->id }}');
-//     const value = input.value;
-
-//     if (value.length === 11 && value.startsWith('09')) {
-//         input.setCustomValidity(''); // Reset any previous validity message
-//         feedback.style.display = 'none'; // Hide feedback message
-//     } else {
-//         input.setCustomValidity('Invalid number'); // Set a custom validity message
-//         feedback.style.display = 'block'; // Show feedback message
-//     }
-// }
-
-// // To handle form submission, ensure the input is validated
-// document.querySelector('form').addEventListener('submit', function (e) {
-//     const input = document.getElementById('contact_number{{ $slot->id }}');
-//     validateContactNumber(input);
-//     if (!input.checkValidity()) {
-//         e.preventDefault(); // Prevent form submission if invalid
-//     }
-// });
-
-// // To handle form submission, ensure the input is validated (dissabled)
-// document.addEventListener("DOMContentLoaded", function() {
-//     // Set price input to read-only
-//     document.getElementById('price{{ $slot->id }}').readOnly = true;
-    
-//     // Set room number input to read-only
-//     document.getElementById('room_number{{ $slot->id }}').readOnly = true;
-// });
-
-// function toggleResetButton() {
-//     const searchInput = document.getElementById('search');
-//     const resetButton = document.getElementById('reset-button');
-
-//     if (searchInput.value) {
-//         resetButton.classList.remove('hidden'); // Show the reset button
-//     } else {
-//         resetButton.classList.add('hidden'); // Hide the reset button
-//     }
-// }
 
 // Preview image function
 function previewImage(event, previewId) {

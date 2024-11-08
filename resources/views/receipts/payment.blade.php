@@ -72,9 +72,7 @@
             </td>
         </tr>
     </table>
-    <div>
-        <h1 class="title">MABALACAT DORM: RECEIPT</h1>
-    </div>
+ 
     <div class="margin-top">
         <table class="w-full">
             <tr>
@@ -98,7 +96,7 @@
             </tr>
             <tr class="items">
                 <td>
-                    ${{ number_format($payment->amount, 2) }}
+                    Php{{ number_format($payment->amount, 2) }}
                 </td>
                 <td>
                     {{ $payment->created_at->format('F j, Y') }}
